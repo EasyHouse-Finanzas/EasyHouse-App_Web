@@ -1,0 +1,58 @@
+
+<div class="w-full max-w-xl space-y-8 py-12">
+
+  <p class="text-sm font-semibold text-blue-400 tracking-wider uppercase">
+    EMPIEZA GRATIS
+  </p>
+
+  <h1 class="text-5xl md:text-6xl font-bold text-white">
+    Créate una cuenta.
+  </h1>
+  <p class="text-gray-200 text-xl">
+    ¿Ya tienes una cuenta?
+    <a [routerLink]="['/login']" class="font-medium text-blue-400 hover:text-blue-300">Inicia sesión</a>
+  </p>
+
+  <form class="space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="nombres" class="sr-only">Nombres</label>
+        <input type="text" id="nombres" name="nombres"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+               placeholder="Nombres" required>
+      </div>
+      <div>
+        <label for="apellidos" class="sr-only">Apellidos</label>
+        <input type="text" id="apellidos" name="apellidos"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+               placeholder="Apellidos" required>
+      </div>
+    </div>
+    <div>
+      <label for="email" class="sr-only">Correo corporativo</label>
+      <input type="email" id="email" name="email"
+             class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+             placeholder="Correo corporativo" required>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="password" class="sr-only">Contraseña</label>
+        <input type="password" id="password" name="password"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+               placeholder="Contraseña" required>
+      </div>
+      <div>
+        <label for="confirm-password" class="sr-only">Confirmar contraseña</label>
+        <input type="password" id="confirm-password" name="confirm-password"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+               placeholder="Confirmar contraseña" required>
+      </div>
+    </div>
+    <div>
+      <button type="submit"
+              class="w-full rounded-full bg-blue-600 px-6 py-4 text-lg font-medium text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+        Regístrate aqui
+      </button>
+    </div>
+  </form>
+</div>
