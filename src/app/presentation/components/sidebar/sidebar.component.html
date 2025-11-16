@@ -1,0 +1,48 @@
+<nav
+  class="fixed flex h-screen flex-col bg-[#1D1C22] text-white transition-all duration-300 ease-in-out"
+  [class.w-80]="isOpen"
+  [class.w-24]="!isOpen">
+
+  <div class="flex flex-col items-center bg-[#333645] p-6 text-center">
+    <img src="assets/logo.png" alt="EasyHouse Logo"
+         class="mx-auto transition-all duration-300"
+         [class.h-24]="isOpen" [class.w-24]="isOpen"
+         [class.h-15]="!isOpen" [class.w-15]="!isOpen">
+    <div [class.hidden]="!isOpen" class="transition-opacity duration-200">
+      <h1 class="mt-2 text-3xl font-bold">
+        <span>Easy</span><span class="text-[#1F8DE9]">House</span>
+      </h1>
+      <p class="text-sm text-gray-200 mt-1">
+        Simulador de crédito hipotecario
+      </p>
+    </div>
+  </div>
+  <div class="flex-grow p-4" [class.p-2]="!isOpen">
+    <ul class="space-y-2">
+
+      @for (link of navLinks; track link.path) {
+        <li>
+          <a [routerLink]="link.path"
+             routerLinkActive="active-link"
+             [routerLinkActiveOptions]="{exact: true}"
+             class="flex w-full items-center rounded-lg px-4 py-3 text-lg font-medium text-gray-200 transition-colors duration-200"
+             [class.justify-start]="isOpen"
+             [class.justify-center]="!isOpen"
+             [title]="!isOpen ? link.label : null">
+
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="link.iconPath" />
+            </svg>
+
+            <span class="ml-3" [class.hidden]="!isOpen">
+              {{ link.label }}
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="p-4 border-t border-gray-700">
+  </div>
+</nav>

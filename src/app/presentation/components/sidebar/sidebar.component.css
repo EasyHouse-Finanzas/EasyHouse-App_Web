@@ -1,0 +1,9 @@
+a.active-link {
+  background-color: #333645;
+  color: white;
+  font-weight: 600;
+}
+a:not(.active-link):hover {
+  background-color: #333645;
+  color: white;
+}
