@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+/* * AHORA QUE USAMOS TAILWIND, ESTE ARCHIVO DEBE SER MÁS SIMPLE.
+ * Tailwind se encargará de los colores, botones e inputs.
+ * Solo definimos la fuente base y un fondo.
+ */
+body {
+  font-family: 'Poppins', sans-serif;
+
+  /* Un fondo base para evitar parpadeos mientras carga Tailwind */
+  background-color: #1a1e2b; /* Este es un gris oscuro */
+}
+
+/* * ¡Borramos todo lo demás! (las variables :root,
+ * los estilos de 'a', 'button', 'input', etc.)
+ * Tailwind ya se encarga de eso.
+ */
