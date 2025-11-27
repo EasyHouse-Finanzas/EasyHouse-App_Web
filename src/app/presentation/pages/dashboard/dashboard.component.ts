@@ -11,14 +11,59 @@ import { RouterLink } from '@angular/router';
 })
 export class DashboardComponent {
   summaryCards = [
-    { title: 'Clientes Registrados', value: '12', icon: 'users', color: 'text-blue-600', bg: 'bg-blue-100' },
-    { title: 'Simulaciones Totales', value: '34', icon: 'calculator', color: 'text-purple-600', bg: 'bg-purple-100' },
-    { title: 'Unidades Inmobiliarias', value: '8', icon: 'home', color: 'text-green-600', bg: 'bg-green-100' },
-    { title: 'Tasa Promedio (TEA)', value: '14.5%', icon: 'percent', color: 'text-orange-600', bg: 'bg-orange-100' }
+    {
+      title: 'Cartera de Clientes',
+      value: '15',
+      icon: 'users',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50'
+    },
+    {
+      title: 'Simulaciones Realizadas',
+      value: '42',
+      icon: 'calculator',
+      color: 'text-purple-600',
+      bg: 'bg-purple-50'
+    },
+    {
+      title: 'Unidades Disponibles',
+      value: '8',
+      icon: 'home',
+      color: 'text-green-600',
+      bg: 'bg-green-50'
+    },
+    {
+      title: 'Monto Total Simulado',
+      value: 'S/ 12.5M',
+      icon: 'money',
+      color: 'text-orange-600',
+      bg: 'bg-orange-50'
+    }
   ];
-  recentActivity = [
-    { client: 'Juan Pérez', action: 'Simulación Crédito Mivivienda', date: 'Hace 2 horas', status: 'Completado' },
-    { client: 'María Rodriguez', action: 'Registro de Cliente Nuevo', date: 'Hace 5 horas', status: 'Nuevo' },
-    { client: 'Carlos Ruiz', action: 'Consulta de Cronograma', date: 'Ayer', status: 'Revisión' }
+  latestSimulations = [
+    {
+      id: 105,
+      cliente: 'Juan Pérez',
+      proyecto: 'Residencial Los Álamos',
+      fecha: '26/11/2025',
+      monto: 250000.00,
+      tcea: 14.5
+    },
+    {
+      id: 104,
+      cliente: 'María Rodríguez',
+      proyecto: 'Edificio Sky Tower',
+      fecha: '25/11/2025',
+      monto: 180000.50,
+      tcea: 13.8
+    },
+    {
+      id: 103,
+      cliente: 'Carlos Ruiz',
+      proyecto: 'Condominio El Sol',
+      fecha: '24/11/2025',
+      monto: 320000.00,
+      tcea: 15.2
+    }
   ];
 }
