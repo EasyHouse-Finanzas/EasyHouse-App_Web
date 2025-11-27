@@ -1,5 +1,4 @@
-
-<div class="w-full max-w-xl space-y-8 py-12">
+<div class="w-full max-w-xl space-y-8 py-12 animate-fade-in">
 
   <p class="text-sm font-semibold text-blue-400 tracking-wider uppercase">
     EMPIEZA GRATIS
@@ -10,48 +9,72 @@
   </h1>
   <p class="text-gray-200 text-xl">
     ¿Ya tienes una cuenta?
-    <a [routerLink]="['/login']" class="font-medium text-blue-400 hover:text-blue-300">Inicia sesión</a>
+    <!-- Ruta corregida para apuntar a /auth/login -->
+    <a [routerLink]="['/auth/login']" class="font-medium text-blue-400 hover:text-blue-300 transition-colors cursor-pointer">Inicia sesión</a>
   </p>
 
-  <form class="space-y-8">
+  <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500 text-red-200 p-4 rounded-lg text-sm">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-8">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label for="nombres" class="sr-only">Nombres</label>
-        <input type="text" id="nombres" name="nombres"
-               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-               placeholder="Nombres" required>
+        <input type="text" id="nombres" formControlName="nombres"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+               [class.ring-red-500]="registerForm.get('nombres')?.invalid && registerForm.get('nombres')?.touched"
+               placeholder="Nombres">
       </div>
       <div>
         <label for="apellidos" class="sr-only">Apellidos</label>
-        <input type="text" id="apellidos" name="apellidos"
-               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-               placeholder="Apellidos" required>
+        <input type="text" id="apellidos" formControlName="apellidos"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+               [class.ring-red-500]="registerForm.get('apellidos')?.invalid && registerForm.get('apellidos')?.touched"
+               placeholder="Apellidos">
       </div>
     </div>
+
     <div>
       <label for="email" class="sr-only">Correo corporativo</label>
-      <input type="email" id="email" name="email"
-             class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-             placeholder="Correo corporativo" required>
+      <input type="email" id="email" formControlName="email"
+             class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+             [class.ring-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+             placeholder="Correo corporativo">
+
+      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="mt-2 text-sm text-red-400">
+        Ingresa un correo válido.
+      </div>
     </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label for="password" class="sr-only">Contraseña</label>
-        <input type="password" id="password" name="password"
-               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-               placeholder="Contraseña" required>
+        <input type="password" id="password" formControlName="password"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+               [class.ring-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+               placeholder="Contraseña">
       </div>
       <div>
         <label for="confirm-password" class="sr-only">Confirmar contraseña</label>
-        <input type="password" id="confirm-password" name="confirm-password"
-               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-               placeholder="Confirmar contraseña" required>
+        <input type="password" id="confirm-password" formControlName="confirmPassword"
+               class="w-full rounded-lg border-none bg-gray-700 bg-opacity-50 px-4 py-4 text-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+               [class.ring-red-500]="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched"
+               placeholder="Confirmar contraseña">
       </div>
     </div>
+
+    <div *ngIf="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched" class="text-sm text-red-400 text-center">
+      Las contraseñas no coinciden.
+    </div>
+
     <div>
       <button type="submit"
-              class="w-full rounded-full bg-blue-600 px-6 py-4 text-lg font-medium text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">
-        Regístrate aqui
+              [disabled]="isLoading || registerForm.invalid"
+              class="w-full rounded-full bg-blue-600 px-6 py-4 text-lg font-medium text-white shadow-md transition-all duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+        <span *ngIf="isLoading" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+        <span *ngIf="!isLoading">Regístrate aquí</span>
+        <span *ngIf="isLoading">Creando cuenta...</span>
       </button>
     </div>
   </form>

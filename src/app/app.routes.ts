@@ -7,6 +7,8 @@ import { DashboardComponent } from './presentation/pages/dashboard/dashboard.com
 import { ClientListComponent } from './presentation/pages/clients/client-list.component';
 import { RealEstateListComponent } from './presentation/pages/real-estate/real-estate-list.component';
 import { SimulatorFlowComponent } from './presentation/pages/simulator/simulator-flow.component';
+import { ReportListComponent } from './presentation/pages/reports/report-list.component';
+import { authGuard } from './infrastructure/security/auth.guard';
 
 export const routes: Routes = [
   {
@@ -21,11 +23,13 @@ export const routes: Routes = [
   {
     path: '',
     component: AppLayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'clients', component: ClientListComponent },
       { path: 'real-estate', component: RealEstateListComponent },
       { path: 'simulator', component: SimulatorFlowComponent },
+      { path: 'reports', component: ReportListComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

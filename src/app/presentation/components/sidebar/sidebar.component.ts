@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject, computed } from '@angular/core';
 import { NgOptimizedImage, CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../infrastructure/services/auth.service';
 
 interface NavLink {
   path: string;
@@ -18,6 +19,15 @@ interface NavLink {
 export class SidebarComponent {
   @Input() isOpen: boolean = true;
 
+  private authService = inject(AuthService);
+
+  // Usamos una señal computada para leer el usuario actual del servicio
+  // Si es null (no hay usuario), mostramos datos por defecto
+  userDisplay = computed(() => {
+    const user = this.authService.currentUser();
+    return user ? user : { name: 'Invitado', initials: 'GV' };
+  });
+
   navLinks: NavLink[] = [
     {
       path: '/dashboard',
@@ -32,12 +42,21 @@ export class SidebarComponent {
     {
       path: '/real-estate',
       label: 'Unidades Inmobiliarias',
-      iconPath: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'
+      iconPath: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'
     },
     {
       path: '/simulator',
       label: 'Simulador',
       iconPath: 'M9 7h6m0 0l-3-3m3 3l-3 3M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
     },
+    {
+      path: '/reports',
+      label: 'Reportes',
+      iconPath: 'M9 17v-2m3 2v-4m3 4v-6m2 10H5a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+    },
   ];
+
+  logout() {
+    this.authService.logout();
+  }
 }

@@ -1,0 +1,67 @@
+<div class="space-y-6 animate-fade-in">
+
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-xl font-semibold text-gray-800">Historial de Reportes</h2>
+      <p class="text-sm text-gray-500">Consulta y descarga simulaciones pasadas</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-gray-600">
+        <thead class="bg-gray-50 text-xs uppercase font-semibold text-gray-700 border-b border-gray-200">
+        <tr>
+          <th class="px-6 py-4">ID / Fecha</th>
+          <th class="px-6 py-4">Cliente</th>
+          <th class="px-6 py-4">Inmueble</th>
+          <th class="px-6 py-4 text-right">Monto Crédito</th>
+          <th class="px-6 py-4 text-center">TCEA</th>
+          <th class="px-6 py-4 text-center">Acciones</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+
+        <tr *ngIf="isLoading">
+          <td colspan="6" class="px-6 py-8 text-center text-gray-500">Cargando historial...</td>
+        </tr>
+
+        <tr *ngFor="let item of reports" class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4">
+            <span class="block font-bold text-gray-800">#{{ item.simulacion_id }}</span>
+            <span class="text-xs text-gray-400">{{ item.fecha_registro | date:'dd/MM/yyyy HH:mm' }}</span>
+          </td>
+          <td class="px-6 py-4 font-medium text-gray-900">
+            {{ item.nombreCliente }}
+          </td>
+          <td class="px-6 py-4 text-gray-600 max-w-xs truncate">
+            {{ item.nombreProyecto }}
+          </td>
+          <td class="px-6 py-4 text-right font-mono font-medium text-gray-700">
+            {{ item.moneda === 'PEN' ? 'S/' : '$' }} {{ item.monto_prestamo | number:'1.2-2' }}
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
+              {{ item.tcea }}%
+            </span>
+          </td>
+          <td class="px-6 py-4 text-center">
+            <button (click)="downloadReport(item)" class="text-[#1F8DE9] hover:text-blue-700 font-medium text-xs flex items-center justify-center gap-1 mx-auto transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              PDF
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="reports.length === 0 && !isLoading">
+          <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+            No se han encontrado simulaciones guardadas.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

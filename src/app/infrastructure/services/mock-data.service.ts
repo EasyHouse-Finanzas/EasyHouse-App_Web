@@ -22,27 +22,47 @@ export class MockDataService {
     { vivienda_id: 2, proyecto: 'Edificio Sky Tower', codigo_inmueble: 'SKY-504', area_total: 85.0, area_techada: 85.0, ubicacion: 'Jr. Huiracocha 456, Jesús María', precio: 120000.00 }
   ];
 
-  // Simulamos la tabla 'simulaciones' (Array en memoria para persistencia temporal)
-  private simulations: any[] = [];
+  // Simulamos la tabla 'simulaciones' con datos iniciales para probar la vista de Reportes
+  private simulations: any[] = [
+    {
+      simulacion_id: 101,
+      fecha_registro: new Date('2025-11-20T10:00:00'),
+      clienteId: 1,
+      viviendaId: 1,
+      moneda: 'PEN',
+      monto_prestamo: 135000.00,
+      tcea: 14.5,
+      cuota_fija: 1850.50,
+      plazoMeses: 120
+    },
+    {
+      simulacion_id: 102,
+      fecha_registro: new Date('2025-11-22T15:30:00'),
+      clienteId: 2,
+      viviendaId: 2,
+      moneda: 'USD',
+      monto_prestamo: 108000.00,
+      tcea: 13.8,
+      cuota_fija: 1420.00,
+      plazoMeses: 180
+    }
+  ];
 
   constructor() { }
 
   // --- MÉTODOS PARA CLIENTES ---
 
   getClients(): Observable<Client[]> {
-    // Retorna la lista de clientes con un pequeño retraso simulado
     return of([...this.clients]).pipe(delay(300));
   }
 
   addClient(client: Client): Observable<boolean> {
-    // Simula el auto-incremento del ID
     client.cliente_id = this.clients.length + 1;
     this.clients.push(client);
     return of(true).pipe(delay(300));
   }
 
   deleteClient(id: number): Observable<boolean> {
-    // Elimina el cliente filtrando el array
     this.clients = this.clients.filter(c => c.cliente_id !== id);
     return of(true).pipe(delay(300));
   }
@@ -59,18 +79,16 @@ export class MockDataService {
     return of(true).pipe(delay(300));
   }
 
-  // --- MÉTODOS PARA SIMULACIONES (NUEVO) ---
+  // --- MÉTODOS PARA SIMULACIONES ---
 
   /**
    * Guarda una nueva simulación en el "backend" falso.
-   * @param config Datos de configuración del formulario (cliente, tasas, plazos)
-   * @param result Resultados calculados (TCEA, VAN, TIR, Cronograma)
    */
   saveSimulation(config: any, result: SimulationResult): Observable<boolean> {
     const newSim = {
-      simulacion_id: this.simulations.length + 1, // ID simulado
+      simulacion_id: this.simulations.length + 100 + 1, // ID simulado incremental
       fecha_registro: new Date(),
-      // Guardamos la data combinada como si fueran columnas de la tabla
+      // Guardamos la configuración del formulario
       ...config,
       // Guardamos los resultados calculados
       cuota_fija: result.cuotaFijaPromedio,
@@ -78,20 +96,33 @@ export class MockDataService {
       van: result.van,
       tir_anual: result.tir,
       monto_prestamo: result.montoPrestamo,
-      cronograma: result.cronograma // (Opcional: en SQL real esto iría en otra tabla, aquí lo guardamos junto)
+      cronograma: result.cronograma
     };
 
+    // Agregamos al inicio o usamos push y luego ordenamos al leer
     this.simulations.push(newSim);
     console.log('✅ Simulación guardada en Mock DB:', newSim);
 
-    return of(true).pipe(delay(600)); // Simula tiempo de escritura en BD
+    return of(true).pipe(delay(600));
   }
 
   /**
    * Obtiene el historial de simulaciones guardadas.
-   * Útil para mostrar en el Dashboard o en una vista de reportes.
+   * Enriquece la data cruzando IDs con los nombres de Clientes y Proyectos.
    */
   getSimulations(): Observable<any[]> {
-    return of([...this.simulations]).pipe(delay(300));
+    // Mapeamos las simulaciones para agregar nombres legibles
+    const enrichedSimulations = this.simulations.map(sim => {
+      const client = this.clients.find(c => c.cliente_id == sim.clienteId);
+      const house = this.houses.find(h => h.vivienda_id == sim.viviendaId);
+
+      return {
+        ...sim,
+        nombreCliente: client ? `${client.nombres} ${client.apellidos}` : 'Cliente Desconocido',
+        nombreProyecto: house ? house.proyecto : 'Inmueble Desconocido'
+      };
+    });
+
+    return of(enrichedSimulations).pipe(delay(300));
   }
 }
