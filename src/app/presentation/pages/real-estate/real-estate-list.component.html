@@ -27,24 +27,29 @@
         </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
+
+        <tr *ngIf="isLoading">
+          <td colspan="5" class="px-6 py-8 text-center text-gray-500">Cargando inmuebles...</td>
+        </tr>
+
         <tr *ngFor="let house of houses" class="hover:bg-gray-50 transition-colors">
           <td class="px-6 py-4">
             <div class="flex flex-col">
-              <span class="font-medium text-gray-900">{{ house.proyecto }}</span>
-              <span class="text-xs text-gray-400 font-mono">{{ house.codigo_inmueble }}</span>
+              <span class="font-medium text-gray-900">{{ house.project }}</span>
+              <span class="text-xs text-gray-400 font-mono">{{ house.propertyCode }}</span>
             </div>
           </td>
-          <td class="px-6 py-4 max-w-xs truncate" title="{{ house.ubicacion }}">
-            {{ house.ubicacion }}
+          <td class="px-6 py-4 max-w-xs truncate" title="{{ house.location }}">
+            {{ house.location }}
           </td>
           <td class="px-6 py-4 text-center">
-            <span class="text-gray-900 font-medium">{{ house.area_total }}</span>
+            <span class="text-gray-900 font-medium">{{ house.totalArea }}</span>
             <span class="text-gray-400 text-xs ml-1">Total</span>
             <br>
-            <span class="text-gray-500 text-xs">{{ house.area_techada }} Techada</span>
+            <span class="text-gray-500 text-xs">{{ house.builtArea }} Techada</span>
           </td>
           <td class="px-6 py-4 text-right font-bold text-gray-800">
-            $ {{ house.precio | number:'1.2-2' }}
+            $ {{ house.price | number:'1.2-2' }}
           </td>
           <td class="px-6 py-4 text-center">
             <button class="text-gray-400 hover:text-blue-600 transition-colors" title="Editar">
@@ -52,11 +57,16 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </button>
+            <button *ngIf="house.houseId" (click)="deleteHouse(house.houseId)" class="text-gray-400 hover:text-red-600 transition-colors" title="Eliminar">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
           </td>
         </tr>
         <tr *ngIf="houses.length === 0 && !isLoading">
           <td colspan="5" class="px-6 py-12 text-center text-gray-400">
-            No hay unidades registradas.
+            No hay unidades registradas en la base de datos.
           </td>
         </tr>
         </tbody>
@@ -80,39 +90,42 @@
 
         <div>
           <label class="block text-xs font-medium text-gray-700 mb-1">Nombre del Proyecto</label>
-          <input formControlName="proyecto" type="text" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5" placeholder="Ej. Residencial Los Pinos">
+          <input formControlName="project" type="text" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5" placeholder="Ej. Residencial Los Pinos">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Código Inmueble</label>
-            <input formControlName="codigo_inmueble" type="text" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5" placeholder="Ej. DPT-201">
+            <input formControlName="propertyCode" type="text" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5" placeholder="Ej. DPT-201">
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Precio de Venta ($)</label>
-            <input formControlName="precio" type="number" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5">
+            <input formControlName="price" type="number" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Área Total (m²)</label>
-            <input formControlName="area_total" type="number" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5">
+            <input formControlName="totalArea" type="number" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5">
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Área Techada (m²)</label>
-            <input formControlName="area_techada" type="number" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5">
+            <input formControlName="builtArea" type="number" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-gray-700 mb-1">Ubicación</label>
-          <input formControlName="ubicacion" type="text" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5" placeholder="Dirección exacta">
+          <input formControlName="location" type="text" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 border p-2.5" placeholder="Dirección exacta">
         </div>
 
         <div class="pt-4 flex gap-3">
           <button type="button" (click)="closeModal()" class="flex-1 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm transition-colors">Cancelar</button>
-          <button type="submit" [disabled]="houseForm.invalid" class="flex-1 py-2.5 bg-[#1F8DE9] text-white rounded-lg hover:bg-blue-600 font-medium text-sm shadow-md transition-colors disabled:opacity-50">Guardar Unidad</button>
+          <button type="submit" [disabled]="houseForm.invalid || isLoading" class="flex-1 py-2.5 bg-[#1F8DE9] text-white rounded-lg hover:bg-blue-600 font-medium text-sm shadow-md transition-colors disabled:opacity-50">
+            <span *ngIf="isLoading">Guardando...</span>
+            <span *ngIf="!isLoading">Guardar Unidad</span>
+          </button>
         </div>
 
       </form>

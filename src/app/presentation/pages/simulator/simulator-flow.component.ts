@@ -1,11 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MockDataService } from '../../../infrastructure/services/mock-data.service';
+import { switchMap } from 'rxjs';
+import { ClientService } from '../../../infrastructure/services/client.service';
+import { RealEstateService } from '../../../infrastructure/services/real-estate.service';
+import { ConfigService } from '../../../infrastructure/services/config.service';
+import { SimulationService } from '../../../infrastructure/services/simulation.service';
 import { FinancialCalculatorService } from '../../../infrastructure/services/financial-calculator.service';
 import { Client } from '../../../domain/models/client.model';
 import { RealEstate } from '../../../domain/models/real-estate.model';
-import { SimulationResult } from '../../../domain/models/simulation.model';
+import { SimulationResult, CreateConfigCommand, CreateSimulationCommand } from '../../../domain/models/simulation.model';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -21,18 +25,23 @@ export class SimulatorFlowComponent implements OnInit {
   clients: Client[] = [];
   houses: RealEstate[] = [];
   selectedHouse: RealEstate | undefined;
+
   configForm: FormGroup;
   simulationForm: FormGroup;
   simulationResult: SimulationResult | null = null;
+
   isLoadingSimulation = false;
   isSaving = false;
   isSaved = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private dataService: MockDataService,
-    private financialService: FinancialCalculatorService
-  ) {
+  private fb = inject(FormBuilder);
+  private clientService = inject(ClientService);
+  private houseService = inject(RealEstateService);
+  private configService = inject(ConfigService);
+  private simulationService = inject(SimulationService);
+  private financialService = inject(FinancialCalculatorService);
+
+  constructor() {
     this.configForm = this.fb.group({
       clienteId: ['', Validators.required],
       viviendaId: ['', Validators.required],
@@ -48,23 +57,27 @@ export class SimulatorFlowComponent implements OnInit {
       portesMensuales: [10, Validators.min(0)],
       itf: [0.005, Validators.min(0)],
       seguroDesgravamen: [0.050, Validators.min(0)],
-      seguroRiesgo: [0.030, Validators.min(0)]
+      seguroRiesgo: [0.030, Validators.min(0)],
+      annualDiscountRate: [0.10, [Validators.required, Validators.min(0)]]
     });
+
     this.simulationForm = this.fb.group({
       cuotaInicial: [0, [Validators.required, Validators.min(0)]],
-      plazoMeses: [120, [Validators.required, Validators.min(6), Validators.max(300)]], // 10 a 25 años
+      plazoMeses: [120, [Validators.required, Validators.min(6), Validators.max(300)]],
       fechaInicio: [new Date().toISOString().split('T')[0], Validators.required]
     });
   }
 
   ngOnInit(): void {
-    this.dataService.getClients().subscribe(data => this.clients = data);
-    this.dataService.getHouses().subscribe(data => this.houses = data);
+    this.clientService.getClients().subscribe(data => this.clients = data);
+    this.houseService.getHouses().subscribe(data => this.houses = data);
+
     this.configForm.get('viviendaId')?.valueChanges.subscribe(id => {
-      this.selectedHouse = this.houses.find(h => h.vivienda_id == id);
+      this.selectedHouse = this.houses.find(h => h.houseId === id);
+
       if (this.selectedHouse) {
         this.simulationForm.patchValue({
-          cuotaInicial: this.selectedHouse.precio * 0.10
+          cuotaInicial: this.selectedHouse.price * 0.10
         });
       }
     });
@@ -100,7 +113,7 @@ export class SimulatorFlowComponent implements OnInit {
         ...this.simulationForm.value
       };
 
-      this.financialService.calculate(fullConfig, this.selectedHouse.precio).subscribe({
+      this.financialService.calculate(fullConfig, this.selectedHouse.price).subscribe({
         next: (result) => {
           this.simulationResult = result;
           this.isLoadingSimulation = false;
@@ -116,16 +129,58 @@ export class SimulatorFlowComponent implements OnInit {
   }
 
   saveToDatabase() {
-    if (!this.simulationResult) return;
+    if (!this.simulationResult || this.configForm.invalid || this.simulationForm.invalid) return;
 
     this.isSaving = true;
-    const fullConfig = { ...this.configForm.value, ...this.simulationForm.value };
+    const formConfig = this.configForm.value;
+    const formSim = this.simulationForm.value;
 
-    this.dataService.saveSimulation(fullConfig, this.simulationResult).subscribe(() => {
-      this.isSaving = false;
-      this.isSaved = true;
+    const configPayload: CreateConfigCommand = {
+      currency: formConfig.moneda,
+      rateType: formConfig.tipoTasa,
+      tea: formConfig.tipoTasa === 'Efectiva' ? (formConfig.tasaValor / 100) : 0,
+      tna: formConfig.tipoTasa === 'Nominal' ? (formConfig.tasaValor / 100) : 0,
+      capitalization: formConfig.capitalizacion,
+      gracePeriodType: formConfig.periodoGracia,
+      graceMonths: formConfig.mesesGracia,
+      housingBonus: formConfig.bonoTechoPropio,
+      disbursementCommission: formConfig.comisionDesembolso,
+      monthlyMaintenance: formConfig.mantenimientoMensual,
+      monthlyFees: formConfig.portesMensuales,
+      itf: formConfig.itf,
+      lifeInsurance: formConfig.seguroDesgravamen / 100,
+      riskInsurance: formConfig.seguroRiesgo / 100,
+      annualDiscountRate: formConfig.annualDiscountRate
+    };
+
+    this.configService.createConfig(configPayload).pipe(
+      switchMap((responseConfig: any) => {
+        const configId = responseConfig.configId || responseConfig.id;
+
+        const simulationPayload: CreateSimulationCommand = {
+          clientId: formConfig.clienteId,
+          houseId: formConfig.viviendaId,
+          configId: configId,
+          initialQuota: formSim.cuotaInicial,
+          termMonths: formSim.plazoMeses,
+          startDate: new Date(formSim.fechaInicio).toISOString()
+        };
+
+        return this.simulationService.createSimulation(simulationPayload);
+      })
+    ).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.isSaved = true;
+      },
+      error: (err) => {
+        console.error('Error guardando en base de datos:', err);
+        this.isSaving = false;
+        alert('Error al guardar la simulación. Revisa la consola.');
+      }
     });
   }
+
   downloadPDF() {
     if (!this.simulationResult || !this.selectedHouse) return;
 
@@ -135,26 +190,30 @@ export class SimulatorFlowComponent implements OnInit {
     doc.setFontSize(16);
     doc.setTextColor(255, 255, 255);
     doc.text('EasyHouse - Reporte de Crédito', 105, 13, { align: 'center' });
+
+    const clienteId = this.configForm.get('clienteId')?.value;
+    const cliente = this.clients.find(c => c.id === clienteId);
+    let dniCliente = '00000000';
+
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.text(`Fecha de Generación: ${new Date().toLocaleDateString()}`, 14, 30);
-    const clienteId = this.configForm.get('clienteId')?.value;
-    const cliente = this.clients.find(c => c.cliente_id == clienteId);
-    let dniCliente = '00000000';
 
     if (cliente) {
-      dniCliente = cliente.dni;
+      dniCliente = cliente.documentNumber;
       doc.setFont('helvetica', 'bold');
       doc.text('CLIENTE:', 14, 40);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${cliente.nombres} ${cliente.apellidos}`, 14, 45);
-      doc.text(`DNI: ${cliente.dni}`, 14, 50);
+      doc.text(`${cliente.firstName} ${cliente.lastName}`, 14, 45);
+      doc.text(`DNI: ${cliente.documentNumber}`, 14, 50);
     }
+
     doc.setFont('helvetica', 'bold');
     doc.text('INMUEBLE:', 110, 40);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Proyecto: ${this.selectedHouse.proyecto}`, 110, 45);
-    doc.text(`Valor: $ ${this.selectedHouse.precio.toLocaleString('en-US', {minimumFractionDigits: 2})}`, 110, 50);
+    doc.text(`Proyecto: ${this.selectedHouse.project}`, 110, 45);
+    doc.text(`Valor: $ ${this.selectedHouse.price.toLocaleString('en-US', {minimumFractionDigits: 2})}`, 110, 50);
+
     doc.setDrawColor(200);
     doc.setFillColor(245, 247, 250);
     doc.roundedRect(14, 60, 182, 30, 3, 3, 'FD');
@@ -224,7 +283,8 @@ export class SimulatorFlowComponent implements OnInit {
       portesMensuales: 10,
       itf: 0.005,
       seguroDesgravamen: 0.050,
-      seguroRiesgo: 0.030
+      seguroRiesgo: 0.030,
+      annualDiscountRate: 0.10
     });
 
     this.simulationForm.reset({

@@ -1,11 +1,10 @@
+
 export interface SimulationConfig {
-  clienteId: number;
-  viviendaId: number;
-  moneda: 'PEN' | 'USD';
+  moneda: string;
   tipoTasa: 'Efectiva' | 'Nominal';
   tasaValor: number;
-  capitalizacion?: 'Diaria' | 'Mensual';
-  periodoGracia: 'Ninguno' | 'Parcial' | 'Total';
+  capitalizacion?: string;
+  periodoGracia: string;
   mesesGracia: number;
   bonoTechoPropio: number;
   cuotaInicial: number;
@@ -14,10 +13,12 @@ export interface SimulationConfig {
   comisionDesembolso: number;
   mantenimientoMensual: number;
   portesMensuales: number;
-  itf: number;
+  itf?: number;
   seguroDesgravamen: number;
   seguroRiesgo: number;
+  annualDiscountRate?: number;
 }
+
 export interface AmortizationScheduleItem {
   numeroCuota: number;
   fechaVencimiento: string;
@@ -40,6 +41,32 @@ export interface SimulationResult {
   totalIntereses: number;
   costoTotalCredito: number;
   gastosAdministrativos: number;
-
   cronograma: AmortizationScheduleItem[];
+}
+
+export interface CreateConfigCommand {
+  currency: string;
+  rateType: string;
+  tea?: number;
+  tna?: number;
+  capitalization: string;
+  gracePeriodType: string;
+  graceMonths: number;
+  housingBonus: number;
+  disbursementCommission: number;
+  monthlyMaintenance: number;
+  monthlyFees: number;
+  itf: number;
+  lifeInsurance: number;
+  riskInsurance: number;
+  annualDiscountRate: number;
+}
+
+export interface CreateSimulationCommand {
+  clientId: string;
+  houseId: string;
+  configId: string;
+  initialQuota: number;
+  termMonths: number;
+  startDate: string;
 }

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MockDataService } from '../../../infrastructure/services/mock-data.service';
+import { ClientService } from '../../../infrastructure/services/client.service';
 import { Client } from '../../../domain/models/client.model';
 
 @Component({
@@ -15,19 +15,17 @@ export class ClientListComponent implements OnInit {
   isModalOpen = false;
   clientForm: FormGroup;
   isLoading = false;
+  private clientService = inject(ClientService);
+  private fb = inject(FormBuilder);
 
-  constructor(
-    private dataService: MockDataService,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.clientForm = this.fb.group({
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
-      dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-      fecha_nacimiento: ['', Validators.required],
-      ocupacion: ['', Validators.required],
-      ingresos_mensuales: [0, [Validators.required, Validators.min(0)]],
-      usuario_id: [1]
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      documentNumber: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+      birthDate: ['', Validators.required],
+      occupation: ['', Validators.required],
+      monthlyIncome: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -37,22 +35,21 @@ export class ClientListComponent implements OnInit {
 
   loadClients() {
     this.isLoading = true;
-    this.dataService.getClients().subscribe({
+    this.clientService.getClients().subscribe({
       next: (data) => {
         this.clients = data;
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error cargando clientes:', err);
+        console.error('Error obteniendo clientes del backend:', err);
         this.isLoading = false;
       }
     });
   }
 
-
   openModal() {
     this.isModalOpen = true;
-    this.clientForm.reset({ ingresos_mensuales: 0, usuario_id: 1 });
+    this.clientForm.reset({ monthlyIncome: 0 });
   }
 
   closeModal() {
@@ -61,21 +58,29 @@ export class ClientListComponent implements OnInit {
 
   saveClient() {
     if (this.clientForm.valid) {
-      const newClient: Client = this.clientForm.value;
-      this.dataService.addClient(newClient).subscribe(() => {
-        this.loadClients();
-        this.closeModal();
+      this.isLoading = true;
+      const formData = this.clientForm.value;
+      const isoDate = new Date(formData.birthDate).toISOString();
+
+      const newClient: Client = {
+        ...formData,
+        birthDate: isoDate,
+        userId: ''
+      };
+
+      this.clientService.createClient(newClient).subscribe({
+        next: () => {
+          this.loadClients();
+          this.closeModal();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error guardando cliente en backend:', err);
+          this.isLoading = false;
+        }
       });
     } else {
       this.clientForm.markAllAsTouched();
-    }
-  }
-
-  deleteClient(id: number) {
-    if (confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) {
-      this.dataService.deleteClient(id).subscribe(() => {
-        this.loadClients(); // Recargamos la tabla
-      });
     }
   }
 }

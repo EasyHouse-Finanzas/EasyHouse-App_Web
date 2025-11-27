@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MockDataService } from '../../../infrastructure/services/mock-data.service';
+import { RealEstateService } from '../../../infrastructure/services/real-estate.service';
 import { RealEstate } from '../../../domain/models/real-estate.model';
 
 @Component({
@@ -16,17 +16,17 @@ export class RealEstateListComponent implements OnInit {
   houseForm: FormGroup;
   isLoading = false;
 
-  constructor(
-    private dataService: MockDataService,
-    private fb: FormBuilder
-  ) {
+  private houseService = inject(RealEstateService);
+  private fb = inject(FormBuilder);
+
+  constructor() {
     this.houseForm = this.fb.group({
-      proyecto: ['', Validators.required],
-      codigo_inmueble: ['', Validators.required],
-      area_total: [0, [Validators.required, Validators.min(1)]],
-      area_techada: [0, [Validators.required, Validators.min(1)]],
-      ubicacion: ['', Validators.required],
-      precio: [0, [Validators.required, Validators.min(1)]]
+      project: ['', Validators.required],
+      propertyCode: ['', Validators.required],
+      totalArea: [0, [Validators.required, Validators.min(1)]],
+      builtArea: [0, [Validators.required, Validators.min(1)]],
+      location: ['', Validators.required],
+      price: [0, [Validators.required, Validators.min(1)]]
     });
   }
 
@@ -36,13 +36,13 @@ export class RealEstateListComponent implements OnInit {
 
   loadHouses() {
     this.isLoading = true;
-    this.dataService.getHouses().subscribe({
+    this.houseService.getHouses().subscribe({
       next: (data) => {
         this.houses = data;
         this.isLoading = false;
       },
-      error: (e) => {
-        console.error(e);
+      error: (err) => {
+        console.error('Error cargando inmuebles:', err);
         this.isLoading = false;
       }
     });
@@ -50,7 +50,7 @@ export class RealEstateListComponent implements OnInit {
 
   openModal() {
     this.isModalOpen = true;
-    this.houseForm.reset({ area_total: 0, area_techada: 0, precio: 0 });
+    this.houseForm.reset({ totalArea: 0, builtArea: 0, price: 0 });
   }
 
   closeModal() {
@@ -59,13 +59,31 @@ export class RealEstateListComponent implements OnInit {
 
   saveHouse() {
     if (this.houseForm.valid) {
+      this.isLoading = true;
       const newHouse: RealEstate = this.houseForm.value;
-      this.dataService.addHouse(newHouse).subscribe(() => {
-        this.loadHouses();
-        this.closeModal();
+
+      this.houseService.createHouse(newHouse).subscribe({
+        next: () => {
+          this.loadHouses();
+          this.closeModal();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error guardando inmueble:', err);
+          this.isLoading = false;
+        }
       });
     } else {
       this.houseForm.markAllAsTouched();
+    }
+  }
+
+  deleteHouse(id: string) {
+    if (confirm('¿Estás seguro de eliminar este inmueble?')) {
+      this.houseService.deleteHouse(id).subscribe({
+        next: () => this.loadHouses(),
+        error: (err) => console.error('Error eliminando:', err)
+      });
     }
   }
 }

@@ -1,10 +1,10 @@
 export interface Client {
-  cliente_id?: number;
-  nombres: string;
-  apellidos: string;
-  fecha_nacimiento: string;
-  dni: string;
-  ocupacion: string;
-  ingresos_mensuales: number;
-  usuario_id: number;
+  id?: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  documentNumber: string;
+  occupation: string;
+  monthlyIncome: number;
+  userId: string;
 }

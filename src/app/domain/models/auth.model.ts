@@ -15,12 +15,12 @@ export interface AuthResponse {
   token: string;
   id?: string;
   email?: string;
-  firstName?: string; // Nuevo
-  lastName?: string;  // Nuevo
+  firstName?: string;
+  lastName?: string;
 }
 
-// Interfaz para guardar en el estado local
 export interface UserSession {
+  id: string;
   name: string;
   email: string;
   initials: string;

@@ -12,25 +12,30 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/iam/auth`;
   private tokenKey = 'auth_token';
   private userKey = 'auth_user';
-
-  // Signals para manejar el estado reactivo
   isAuthenticated = signal<boolean>(this.hasToken());
-  // Signal del usuario: se inicializa leyendo del localStorage
   currentUser = signal<UserSession | null>(this.getUserFromStorage());
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {
+    console.log(' AuthService inicializado. Usuario en storage:', this.currentUser());
+  }
+  get currentUserId(): string {
+    const user = this.currentUser();
+    return user?.id || '';
+  }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/signin`, credentials).pipe(
-      tap(response => this.handleSuccess(response))
+      tap(response => {
+        console.log('📡 Respuesta Login Backend:', response);
+        this.handleSuccess(response);
+      })
     );
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, data).pipe(
       tap(response => {
-        // En registro, tenemos los datos frescos del formulario, así que los pasamos manualmente
-        // para asegurarnos de que se guarden aunque el backend solo devuelva el token.
+        console.log('📡 Respuesta Registro Backend:', response);
         this.handleSuccess(response, {
           firstName: data.firstName,
           lastName: data.lastName,
@@ -52,6 +57,10 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  currentUserData(): UserSession | null {
+    return this.currentUser();
+  }
+
   private hasToken(): boolean {
     return !!localStorage.getItem(this.tokenKey);
   }
@@ -61,25 +70,63 @@ export class AuthService {
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
-  // Método unificado para manejar el éxito del login/registro
-  // Acepta datos extra (userData) para forzar el guardado del nombre desde el registro
+  private parseJwt(token: string) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.error(' Error decodificando token:', e);
+      return {};
+    }
+  }
+
   private handleSuccess(response: AuthResponse, userData?: { firstName: string, lastName: string, email: string }) {
     if (response && response.token) {
       localStorage.setItem(this.tokenKey, response.token);
       this.isAuthenticated.set(true);
 
-      // Prioridad: 1. Datos pasados manualmente (registro) -> 2. Datos del backend -> 3. Fallback
-      const firstName = userData?.firstName || response.firstName || 'Usuario';
-      const lastName = userData?.lastName || response.lastName || 'EasyHouse';
-      const email = userData?.email || response.email || '';
+      const payload = this.parseJwt(response.token);
+      console.log(' Token Decodificado:', payload);
+
+      const firstName = userData?.firstName
+        || response.firstName
+        || payload.firstName
+        || payload.given_name
+        || payload.name
+        || payload.unique_name
+        || 'Usuario';
+
+      const lastName = userData?.lastName
+        || response.lastName
+        || payload.lastName
+        || payload.family_name
+        || 'EasyHouse';
+
+      const email = userData?.email
+        || response.email
+        || payload.email
+        || payload.sub
+        || '';
+
+      const userId = response.id
+        || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+        || payload.sub
+        || payload.id
+        || '';
 
       const userSession: UserSession = {
+        id: userId,
         name: `${firstName} ${lastName}`,
         email: email,
         initials: `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
       };
 
-      // Guardamos sesión persistente y actualizamos la señal
+      console.log(' Guardando sesión de usuario:', userSession);
+
       localStorage.setItem(this.userKey, JSON.stringify(userSession));
       this.currentUser.set(userSession);
     }

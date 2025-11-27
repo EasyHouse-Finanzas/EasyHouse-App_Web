@@ -20,9 +20,6 @@ export class SidebarComponent {
   @Input() isOpen: boolean = true;
 
   private authService = inject(AuthService);
-
-  // Usamos una señal computada para leer el usuario actual del servicio
-  // Si es null (no hay usuario), mostramos datos por defecto
   userDisplay = computed(() => {
     const user = this.authService.currentUser();
     return user ? user : { name: 'Invitado', initials: 'GV' };

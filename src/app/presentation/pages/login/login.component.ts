@@ -39,13 +39,11 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading = false;
-        // Redirigir al dashboard tras login exitoso
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Login error', err);
         this.isLoading = false;
-        // Manejo básico de errores (puedes mejorarlo según lo que devuelva tu API)
         if (err.status === 401) {
           this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
         } else {
