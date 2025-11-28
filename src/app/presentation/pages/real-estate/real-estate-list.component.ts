@@ -15,7 +15,6 @@ export class RealEstateListComponent implements OnInit {
   isModalOpen = false;
   houseForm: FormGroup;
   isLoading = false;
-
   selectedHouseId: string | null = null;
 
   private houseService = inject(RealEstateService);
@@ -28,6 +27,7 @@ export class RealEstateListComponent implements OnInit {
       totalArea: [0, [Validators.required, Validators.min(1)]],
       builtArea: [0, [Validators.required, Validators.min(1)]],
       location: ['', Validators.required],
+      currency: ['USD', Validators.required],
       price: [0, [Validators.required, Validators.min(1)]]
     });
   }
@@ -53,7 +53,7 @@ export class RealEstateListComponent implements OnInit {
   openModal() {
     this.isModalOpen = true;
     this.selectedHouseId = null;
-    this.houseForm.reset({ totalArea: 0, builtArea: 0, price: 0 });
+    this.houseForm.reset({ totalArea: 0, builtArea: 0, price: 0, currency: 'USD' });
   }
 
   editHouse(house: RealEstate) {
@@ -65,7 +65,8 @@ export class RealEstateListComponent implements OnInit {
       totalArea: house.totalArea,
       builtArea: house.builtArea,
       location: house.location,
-      price: house.price
+      price: house.price,
+      currency: house.currency || 'USD'
     });
   }
 

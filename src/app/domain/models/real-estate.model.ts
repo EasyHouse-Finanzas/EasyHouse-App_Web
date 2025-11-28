@@ -7,4 +7,5 @@ export interface RealEstate {
   builtArea: number;
   location: string;
   price: number;
+  currency: string;
 }

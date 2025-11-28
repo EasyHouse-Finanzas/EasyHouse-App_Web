@@ -22,12 +22,11 @@ export class RealEstateService {
       areaTotal: house.totalArea,
       areaTechada: house.builtArea,
       ubicacion: house.location,
-      precio: house.price
+      precio: house.price,
+      currency: house.currency
     };
-
     return this.http.post(this.apiUrl, payload);
   }
-
   deleteHouse(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
@@ -39,7 +38,8 @@ export class RealEstateService {
       totalArea: house.totalArea,
       builtArea: house.builtArea,
       location: house.location,
-      price: house.price
+      price: house.price,
+      currency: house.currency
     };
     return this.http.put(`${this.apiUrl}/${id}`, payload);
   }
