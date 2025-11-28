@@ -1,5 +1,6 @@
 export interface Client {
   id?: string;
+  clientId?: string;
   firstName: string;
   lastName: string;
   birthDate: string;

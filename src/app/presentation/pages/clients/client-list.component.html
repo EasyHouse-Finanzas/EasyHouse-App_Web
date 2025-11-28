@@ -23,6 +23,7 @@
           <th class="px-6 py-4">DNI</th>
           <th class="px-6 py-4">Ocupación</th>
           <th class="px-6 py-4">Ingresos (S/)</th>
+          <th class="px-6 py-4 text-center">Acciones</th>
         </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -53,6 +54,18 @@
           <td class="px-6 py-4 font-medium text-green-600">
             {{ client.monthlyIncome | number:'1.2-2' }}
           </td>
+          <td class="px-6 py-4 text-center">
+            <button (click)="editClient(client)" class="text-gray-400 hover:text-blue-600 transition-colors" title="Editar">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+            <button (click)="deleteClient(client.id || '')" class="text-gray-400 hover:text-red-600 transition-colors" title="Eliminar">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </td>
         </tr>
 
         <tr *ngIf="clients.length === 0 && !isLoading">
@@ -69,7 +82,9 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
 
       <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-        <h3 class="text-lg font-bold text-gray-800">Registrar Nuevo Cliente</h3>
+        <h3 class="text-lg font-bold text-gray-800">
+          {{ selectedClientId ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}
+        </h3>
         <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -122,8 +137,8 @@
           </button>
           <button type="submit" [disabled]="clientForm.invalid || isLoading" class="flex-1 py-2.5 bg-[#1F8DE9] text-white rounded-lg hover:bg-blue-600 font-medium transition-colors text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
             <span *ngIf="isLoading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-            <span *ngIf="!isLoading">Guardar Cliente</span>
-            <span *ngIf="isLoading">Guardando...</span>
+            <span *ngIf="!isLoading">{{ selectedClientId ? 'Actualizar Cliente' : 'Guardar Cliente' }}</span>
+            <span *ngIf="isLoading">{{ selectedClientId ? 'Actualizando...' : 'Guardando...' }}</span>
           </button>
         </div>
 

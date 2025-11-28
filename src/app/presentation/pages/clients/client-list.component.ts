@@ -15,6 +15,8 @@ export class ClientListComponent implements OnInit {
   isModalOpen = false;
   clientForm: FormGroup;
   isLoading = false;
+  selectedClientId: string | null = null;
+
   private clientService = inject(ClientService);
   private fb = inject(FormBuilder);
 
@@ -49,11 +51,31 @@ export class ClientListComponent implements OnInit {
 
   openModal() {
     this.isModalOpen = true;
+    this.selectedClientId = null;
     this.clientForm.reset({ monthlyIncome: 0 });
+  }
+  editClient(client: Client) {
+    this.isModalOpen = true;
+    this.selectedClientId = client.id || null;
+    let formattedDate = '';
+    if (client.birthDate) {
+      formattedDate = new Date(client.birthDate).toISOString().split('T')[0];
+    }
+
+    this.clientForm.patchValue({
+      firstName: client.firstName,
+      lastName: client.lastName,
+      documentNumber: client.documentNumber,
+      birthDate: formattedDate,
+      occupation: client.occupation,
+      monthlyIncome: client.monthlyIncome
+    });
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.selectedClientId = null;
+    this.clientForm.reset();
   }
 
   saveClient() {
@@ -62,25 +84,52 @@ export class ClientListComponent implements OnInit {
       const formData = this.clientForm.value;
       const isoDate = new Date(formData.birthDate).toISOString();
 
-      const newClient: Client = {
+      const clientData = {
         ...formData,
-        birthDate: isoDate,
-        userId: ''
+        birthDate: isoDate
       };
 
-      this.clientService.createClient(newClient).subscribe({
-        next: () => {
-          this.loadClients();
-          this.closeModal();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('Error guardando cliente en backend:', err);
-          this.isLoading = false;
-        }
-      });
+      if (this.selectedClientId) {
+        this.clientService.updateClient(this.selectedClientId, clientData).subscribe({
+          next: () => {
+            this.loadClients();
+            this.closeModal();
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error('Error actualizando cliente:', err);
+            this.isLoading = false;
+          }
+        });
+      } else {
+        const newClient: Client = {
+          ...clientData,
+          userId: ''
+        };
+
+        this.clientService.createClient(newClient).subscribe({
+          next: () => {
+            this.loadClients();
+            this.closeModal();
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error('Error guardando cliente:', err);
+            this.isLoading = false;
+          }
+        });
+      }
     } else {
       this.clientForm.markAllAsTouched();
+    }
+  }
+
+  deleteClient(id: string) {
+    if (confirm('¿Estás seguro de eliminar este cliente de la base de datos?')) {
+      this.clientService.deleteClient(id).subscribe({
+        next: () => this.loadClients(),
+        error: (err) => console.error('Error eliminando cliente:', err)
+      });
     }
   }
 }

@@ -12,10 +12,13 @@ export class ClientService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private apiUrl = `${environment.apiUrl}/clients`;
+
   constructor() {}
+
   getClients(): Observable<Client[]> {
     return this.http.get<Client[]>(this.apiUrl);
   }
+
   createClient(client: Client): Observable<any> {
     const currentUserId = this.authService.currentUserData()?.id || this.getUserIdFromToken();
 
@@ -30,6 +33,22 @@ export class ClientService {
     };
 
     return this.http.post(this.apiUrl, payload);
+  }
+
+  updateClient(id: string, client: any): Observable<any> {
+    const payload = {
+      firstName: client.firstName,
+      lastName: client.lastName,
+      birthDate: client.birthDate,
+      documentNumber: client.documentNumber,
+      occupation: client.occupation,
+      monthlyIncome: client.monthlyIncome
+    };
+    return this.http.put(`${this.apiUrl}/${id}`, payload);
+  }
+
+  deleteClient(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
   private getUserIdFromToken(): string {

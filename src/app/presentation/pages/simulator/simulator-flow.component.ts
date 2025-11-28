@@ -69,7 +69,10 @@ export class SimulatorFlowComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.clientService.getClients().subscribe(data => this.clients = data);
+    this.clientService.getClients().subscribe(data => {
+      console.log('📦 DATA CLIENTES RECIBIDA:', data);
+      this.clients = data;
+    });
     this.houseService.getHouses().subscribe(data => this.houses = data);
 
     this.configForm.get('viviendaId')?.valueChanges.subscribe(id => {
@@ -155,16 +158,23 @@ export class SimulatorFlowComponent implements OnInit {
 
     this.configService.createConfig(configPayload).pipe(
       switchMap((responseConfig: any) => {
-        const configId = responseConfig.configId || responseConfig.id;
+        console.log('Respuesta Configuración:', responseConfig);
+        const configId = responseConfig?.configId || responseConfig?.id || responseConfig;
+
+        if (!configId || typeof configId !== 'string') {
+          throw new Error('No se pudo obtener el ID de la configuración creada');
+        }
 
         const simulationPayload: CreateSimulationCommand = {
           clientId: formConfig.clienteId,
           houseId: formConfig.viviendaId,
           configId: configId,
-          initialQuota: formSim.cuotaInicial,
-          termMonths: formSim.plazoMeses,
+          initialQuota: Number(formSim.cuotaInicial),
+          termMonths: Number(formSim.plazoMeses),
           startDate: new Date(formSim.fechaInicio).toISOString()
         };
+
+        console.log('Enviando Simulación:', simulationPayload);
 
         return this.simulationService.createSimulation(simulationPayload);
       })
@@ -174,9 +184,14 @@ export class SimulatorFlowComponent implements OnInit {
         this.isSaved = true;
       },
       error: (err) => {
-        console.error('Error guardando en base de datos:', err);
+        console.error('Error completo:', err);
+        if (err.error && err.error.errors) {
+          console.table(err.error.errors);
+          alert('Error de validación: Revisa la consola para ver qué campo falla.');
+        } else {
+          alert('Ocurrió un error al guardar. Revisa la consola.');
+        }
         this.isSaving = false;
-        alert('Error al guardar la simulación. Revisa la consola.');
       }
     });
   }

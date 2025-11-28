@@ -16,10 +16,31 @@ export class RealEstateService {
   }
 
   createHouse(house: RealEstate): Observable<any> {
-    return this.http.post(this.apiUrl, house);
+    const payload = {
+      proyecto: house.project,
+      codigoInmueble: house.propertyCode,
+      areaTotal: house.totalArea,
+      areaTechada: house.builtArea,
+      ubicacion: house.location,
+      precio: house.price
+    };
+
+    return this.http.post(this.apiUrl, payload);
   }
 
   deleteHouse(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  updateHouse(id: string, house: RealEstate): Observable<any> {
+    const payload = {
+      project: house.project,
+      propertyCode: house.propertyCode,
+      totalArea: house.totalArea,
+      builtArea: house.builtArea,
+      location: house.location,
+      price: house.price
+    };
+    return this.http.put(`${this.apiUrl}/${id}`, payload);
   }
 }
