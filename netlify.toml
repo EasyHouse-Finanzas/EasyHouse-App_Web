@@ -1,6 +1,6 @@
 [build]
   command = "ng build"
-  publish = "dist/EasyHouse"
+  publish = "dist/EasyHouse/browser"
 [[redirects]]
   from = "/*"
   to = "/index.html"
