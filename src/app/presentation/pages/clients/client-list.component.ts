@@ -55,9 +55,10 @@ export class ClientListComponent implements OnInit {
     this.clientForm.reset({ monthlyIncome: 0 });
   }
 
-  editClient(client: Client) {
+  editClient(client: any) {
     this.isModalOpen = true;
-    this.selectedClientId = client.id || null;
+    this.selectedClientId = client.clientId || client.id || null;
+
     let formattedDate = '';
     if (client.birthDate) {
       formattedDate = new Date(client.birthDate).toISOString().split('T')[0];
