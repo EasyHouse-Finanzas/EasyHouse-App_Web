@@ -49,7 +49,7 @@ export class LoginComponent {
       ...this.loginForm.value,
       recaptchaToken: this.loginForm.get('recaptcha')?.value
     };
-    this.authService.login(this.loginForm.value).subscribe({
+    this.authService.login(credentials).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/dashboard']);
