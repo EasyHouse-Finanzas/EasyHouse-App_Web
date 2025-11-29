@@ -245,30 +245,25 @@ export class SimulatorFlowComponent implements OnInit {
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
 
-    // --- CORRECCIÓN AQUÍ: Usamos las propiedades en INGLÉS del nuevo modelo ---
     doc.text(`Monto Préstamo: S/ ${simulationResult.loanAmount.toFixed(2)}`, 20, 78);
     doc.text(`VAN: ${simulationResult.van.toFixed(2)}`, 80, 78);
-    // Nota: Si en tu modelo TS se llama 'tir', úsalo. Si es 'annualIRR', cámbialo aquí.
     doc.text(`TIR: ${simulationResult.tir}%`, 140, 78);
 
     doc.text(`TCEA: ${simulationResult.tcea}%`, 20, 85);
-    // fixedQuota en lugar de cuotaFijaPromedio
     doc.text(`Cuota Ref: S/ ${simulationResult.fixedQuota.toFixed(2)}`, 80, 85);
-    // costoTotalCredito (si mantuviste el nombre en español en la interfaz TS, está bien, si no usa totalCreditCost)
     doc.text(`Costo Total: S/ ${simulationResult.costoTotalCredito.toFixed(2)}`, 140, 85);
 
     autoTable(doc, {
       startY: 100,
       head: [['N°', 'Fecha', 'Cuota Total', 'Interés', 'Amort.', 'Seguros', 'Saldo']],
-      // --- CORRECCIÓN AQUÍ TAMBIÉN: Propiedades del array ---
       body: simulationResult.cronograma.map((row: any) => [
-        row.period, // Antes: numeroCuota
-        new Date(row.paymentDate).toLocaleDateString(), // Antes: fechaVencimiento
-        row.payment.toFixed(2), // Antes: cuotaTotal
-        row.interest.toFixed(2), // Antes: interes
-        row.amortizacion.toFixed(2), // Este suele mantenerse o ser amortization
-        (row.seguros + row.gastos).toFixed(2), // Estos son los nuevos
-        row.balance.toFixed(2) // Antes: saldoFinal
+        row.period,
+        new Date(row.paymentDate).toLocaleDateString(),
+        row.payment.toFixed(2),
+        row.interest.toFixed(2),
+        row.amortizacion.toFixed(2),
+        (row.seguros + row.gastos).toFixed(2),
+        row.balance.toFixed(2)
       ]),
       theme: 'striped',
       headStyles: {

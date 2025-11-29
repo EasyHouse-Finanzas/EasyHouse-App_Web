@@ -2,7 +2,7 @@ export interface SimulationConfig {
   moneda: string;
   tipoTasa: 'Efectiva' | 'Nominal';
   tasaValor: number;
-  capitalizacion?: string; // IMPORTANTE: Agregado para soportar nominal
+  capitalizacion?: string;
   periodoGracia: string;
   mesesGracia: number;
   bonoTechoPropio: number;
@@ -18,29 +18,27 @@ export interface SimulationConfig {
   annualDiscountRate?: number;
 }
 
-// ESTA ES LA CLAVE: Debe coincidir con C# (camelCase)
 export interface AmortizationDetail {
-  period: number;           // Antes: numeroCuota
-  paymentDate: string;      // Antes: fechaVencimiento
-  payment: number;          // Antes: cuotaTotal
-  interest: number;         // Antes: interes
-  amortizacion: number;     // C#: Amortization -> JSON: amortization
-  balance: number;          // Antes: saldoFinal
-  seguros: number;          // NUEVO: Viene del Backend
-  gastos: number;           // NUEVO: Viene del Backend
+  period: number;
+  paymentDate: string;
+  payment: number;
+  interest: number;
+  amortizacion: number;
+  balance: number;
+  seguros: number;
+  gastos: number;
 }
 
 export interface SimulationResult {
-  // Coincidencia con propiedades de clase Simulation (C#)
-  loanAmount: number;       // Antes: montoPrestamo
-  fixedQuota: number;       // Antes: cuotaFijaPromedio
+  loanAmount: number;
+  fixedQuota: number;
   tcea: number;
   van: number;
-  tir: number;              // O annualIRR si usaste ese nombre en el DTO
-  totalIntereses: number;   // totalInterests
-  costoTotalCredito: number;// totalCreditCost
-  gastosAdministrativos: number; // insuranceMaintenanceFees
-  cronograma: AmortizationDetail[]; // El array con el nuevo tipo
+  tir: number;
+  totalIntereses: number;
+  costoTotalCredito: number;
+  gastosAdministrativos: number;
+  cronograma: AmortizationDetail[];
 }
 
 export interface CreateConfigCommand {

@@ -17,6 +17,9 @@ export class RegisterComponent {
   isLoading = false;
   errorMessage: string | null = null;
 
+  showPassword = false;
+  showConfirmPassword = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -25,7 +28,11 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [
+        Validators.required,
+        Validators.email,
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@upc\.edu\.pe$/)
+      ]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
@@ -34,6 +41,14 @@ export class RegisterComponent {
   passwordMatchValidator(g: FormGroup) {
     return g.get('password')?.value === g.get('confirmPassword')?.value
       ? null : { mismatch: true };
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit() {
@@ -63,9 +78,9 @@ export class RegisterComponent {
         console.error('Register error', err);
         this.isLoading = false;
         if (err.status === 400) {
-          this.errorMessage = 'Datos inválidos o el correo ya está registrado.';
+          this.errorMessage = 'El correo ya está registrado o los datos son inválidos.';
         } else {
-          this.errorMessage = 'Hubo un problema al crear tu cuenta. Intenta nuevamente.';
+          this.errorMessage = 'Hubo un problema de conexión. Intenta nuevamente.';
         }
       }
     });

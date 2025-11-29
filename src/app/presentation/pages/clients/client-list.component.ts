@@ -43,7 +43,7 @@ export class ClientListComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error obteniendo clientes del backend:', err);
+        console.error('Error obteniendo clientes:', err);
         this.isLoading = false;
       }
     });
@@ -54,6 +54,7 @@ export class ClientListComponent implements OnInit {
     this.selectedClientId = null;
     this.clientForm.reset({ monthlyIncome: 0 });
   }
+
   editClient(client: Client) {
     this.isModalOpen = true;
     this.selectedClientId = client.id || null;
@@ -89,43 +90,28 @@ export class ClientListComponent implements OnInit {
         birthDate: isoDate
       };
 
-      if (this.selectedClientId) {
-        this.clientService.updateClient(this.selectedClientId, clientData).subscribe({
-          next: () => {
-            this.loadClients();
-            this.closeModal();
-            this.isLoading = false;
-          },
-          error: (err) => {
-            console.error('Error actualizando cliente:', err);
-            this.isLoading = false;
-          }
-        });
-      } else {
-        const newClient: Client = {
-          ...clientData,
-          userId: ''
-        };
+      const request$ = this.selectedClientId
+        ? this.clientService.updateClient(this.selectedClientId, clientData)
+        : this.clientService.createClient({ ...clientData, userId: '' });
 
-        this.clientService.createClient(newClient).subscribe({
-          next: () => {
-            this.loadClients();
-            this.closeModal();
-            this.isLoading = false;
-          },
-          error: (err) => {
-            console.error('Error guardando cliente:', err);
-            this.isLoading = false;
-          }
-        });
-      }
+      request$.subscribe({
+        next: () => {
+          this.loadClients();
+          this.closeModal();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error guardando cliente:', err);
+          this.isLoading = false;
+        }
+      });
     } else {
       this.clientForm.markAllAsTouched();
     }
   }
 
   deleteClient(id: string) {
-    if (confirm('¿Estás seguro de eliminar este cliente de la base de datos?')) {
+    if (confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) {
       this.clientService.deleteClient(id).subscribe({
         next: () => this.loadClients(),
         error: (err) => console.error('Error eliminando cliente:', err)

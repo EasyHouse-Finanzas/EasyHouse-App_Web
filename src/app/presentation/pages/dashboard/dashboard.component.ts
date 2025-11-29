@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
+import { AuthService } from '../../../infrastructure/services/auth.service';
 import { ClientService } from '../../../infrastructure/services/client.service';
 import { RealEstateService } from '../../../infrastructure/services/real-estate.service';
 import { SimulationService } from '../../../infrastructure/services/simulation.service';
@@ -16,9 +17,16 @@ import { SimulationService } from '../../../infrastructure/services/simulation.s
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
+  private authService = inject(AuthService);
   private clientService = inject(ClientService);
   private houseService = inject(RealEstateService);
   private simulationService = inject(SimulationService);
+
+  userName = computed(() => {
+    const user = this.authService.currentUser();
+    return user && user.name ? user.name : 'Agente';
+  });
+
   summaryCards = [
     { title: 'Cartera de Clientes', value: '...', icon: 'users', color: 'text-blue-600', bg: 'bg-blue-50' },
     { title: 'Simulaciones Realizadas', value: '...', icon: 'calculator', color: 'text-purple-600', bg: 'bg-purple-50' },

@@ -43,27 +43,43 @@
     </ul>
   </div>
 
-  <div class="p-8 bg-[#18181b] border-t border-gray-800">
-    <div class="flex items-center gap-3" [class.justify-center]="!isOpen" [class.justify-between]="isOpen">
+  <div class="border-t border-gray-800 bg-[#16161a]" [class.p-4]="isOpen" [class.p-2]="!isOpen">
 
-      <div class="flex items-center gap-3 overflow-hidden">
-        <div class="h-10 w-10 min-w-[2.5rem] rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md border-2 border-[#1D1C22]">
+    <div class="flex items-center transition-all duration-300 rounded-xl group relative"
+         [class.bg-white-alpha]="isOpen"
+         [class.p-3]="isOpen"
+         [class.bg-white-5]="isOpen"
+         [class.justify-center]="!isOpen"
+         [class.py-4]="!isOpen"
+         [ngClass]="{'bg-white/5 hover:bg-white/10': isOpen}">
+
+      <div class="relative flex-shrink-0">
+        <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-[#2A2D3E] group-hover:ring-[#1F8DE9] transition-all">
           {{ userDisplay().initials }}
         </div>
-        <div [class.hidden]="!isOpen" class="flex flex-col min-w-0">
-          <span class="text-sm font-semibold text-white truncate">{{ userDisplay().name }}</span>
-          <span class="text-xs text-green-400 font-medium">En línea</span>
-        </div>
+        <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-[#16161a]"></span>
       </div>
 
-      <button (click)="logout()"
-              class="text-gray-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-gray-800"
-              [title]="isOpen ? 'Cerrar Sesión' : ''"
-              [class.hidden]="!isOpen">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-        </svg>
-      </button>
+      <div [class.hidden]="!isOpen" class="ml-3 flex-grow overflow-hidden transition-all duration-300">
+        <p class="text-sm font-bold text-white truncate leading-tight">
+          {{ userDisplay().name }}
+        </p>
+        <p class="text-[11px] text-gray-400 truncate mt-0.5">
+          Agente Inmobiliario
+        </p>
+      </div>
+
+      <div [class.hidden]="!isOpen" class="ml-auto pl-2 border-l border-gray-700/50">
+        <button (click)="logout()"
+                class="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 group-hover/btn:scale-105"
+                title="Cerrar Sesión">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </div>
+
     </div>
   </div>
+
 </nav>

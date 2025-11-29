@@ -52,7 +52,8 @@ export class ReportListComponent implements OnInit {
             date: sim.startDate,
             clientName: client ? `${client.firstName} ${client.lastName}` : 'Cliente No Encontrado',
             projectName: house ? house.project : 'Inmueble No Encontrado',
-            currency: 'PEN',
+            propertyCode: house ? house.propertyCode : '---',
+            currency: sim.config?.currency || 'PEN',
             loanAmount: loanAmount > 0 ? loanAmount : 0,
             tcea: sim.tcea || 0
           };
@@ -73,19 +74,21 @@ export class ReportListComponent implements OnInit {
       alert('Error: ID de reporte no válido');
       return;
     }
+
+    document.body.style.cursor = 'wait';
+
     this.simulationService.getSimulationById(reportItem.id).subscribe({
       next: (fullSim) => {
         if (!fullSim || !fullSim.config || !fullSim.house || !fullSim.client) {
-          alert('No se pudieron cargar los detalles completos de la simulación.');
+          document.body.style.cursor = 'default';
+          alert('No se pudieron cargar los detalles completos de la simulación para regenerar el PDF.');
           return;
         }
 
         const configForCalc: SimulationConfig = {
           moneda: fullSim.config.currency,
           tipoTasa: fullSim.config.rateType,
-          tasaValor: fullSim.config.rateType === 'Efectiva'
-            ? (fullSim.config.tea * 100)
-            : (fullSim.config.tna * 100),
+          tasaValor: fullSim.config.rateType === 'Efectiva' ? (fullSim.config.tea * 100) : (fullSim.config.tna * 100),
           capitalizacion: fullSim.config.capitalization,
           periodoGracia: fullSim.config.gracePeriodType,
           mesesGracia: fullSim.config.graceMonths,
@@ -104,12 +107,17 @@ export class ReportListComponent implements OnInit {
 
         const housePrice = fullSim.house.price !== undefined ? fullSim.house.price : fullSim.house.precio;
 
-        this.financialService.calculate(configForCalc, housePrice).subscribe(result => {
-          this.generatePDF(result, fullSim.client, fullSim.house);
+        this.financialService.calculate(configForCalc, housePrice).subscribe({
+          next: (result) => {
+            this.generatePDF(result, fullSim.client, fullSim.house);
+            document.body.style.cursor = 'default';
+          },
+          error: () => document.body.style.cursor = 'default'
         });
       },
       error: (err) => {
         console.error('Error al descargar detalles:', err);
+        document.body.style.cursor = 'default';
         alert('Hubo un error al intentar generar el PDF.');
       }
     });
@@ -126,20 +134,20 @@ export class ReportListComponent implements OnInit {
 
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Fecha de Impresión: ${new Date().toLocaleDateString()}`, 14, 30);
+    doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString()}`, 14, 30);
 
     doc.setFont('helvetica', 'bold');
-    doc.text('CLIENTE:', 14, 40);
+    doc.text('DATOS DEL CLIENTE:', 14, 40);
     doc.setFont('helvetica', 'normal');
     doc.text(`${client.firstName} ${client.lastName}`, 14, 45);
     doc.text(`DNI: ${client.documentNumber}`, 14, 50);
 
     doc.setFont('helvetica', 'bold');
-    doc.text('INMUEBLE:', 110, 40);
+    doc.text('DATOS DEL INMUEBLE:', 110, 40);
     doc.setFont('helvetica', 'normal');
     doc.text(`Proyecto: ${house.project || house.proyecto}`, 110, 45);
     const precio = house.price !== undefined ? house.price : house.precio;
-    doc.text(`Valor: $ ${precio.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 110, 50);
+    doc.text(`Valor: $ ${Number(precio).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 110, 50);
 
     doc.setDrawColor(200);
     doc.setFillColor(245, 247, 250);
@@ -147,32 +155,32 @@ export class ReportListComponent implements OnInit {
 
     doc.setFontSize(11);
     doc.setTextColor(31, 141, 233);
-    doc.text('INDICADORES FINANCIEROS (Recalculados)', 105, 68, { align: 'center' });
+    doc.text('RESUMEN DE LA SIMULACIÓN', 105, 68, { align: 'center' });
 
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
 
-    doc.text(`Monto Préstamo: S/ ${simulationResult.montoPrestamo.toFixed(2)}`, 20, 78);
+    doc.text(`Préstamo Neto: S/ ${simulationResult.loanAmount.toFixed(2)}`, 20, 78);
     doc.text(`VAN: ${simulationResult.van.toFixed(2)}`, 80, 78);
     doc.text(`TIR: ${simulationResult.tir}%`, 140, 78);
 
     doc.text(`TCEA: ${simulationResult.tcea}%`, 20, 85);
-    doc.text(`Cuota Ref: S/ ${simulationResult.cuotaFijaPromedio.toFixed(2)}`, 80, 85);
+    doc.text(`Cuota Mensual: S/ ${simulationResult.fixedQuota.toFixed(2)}`, 80, 85);
     doc.text(`Costo Total: S/ ${simulationResult.costoTotalCredito.toFixed(2)}`, 140, 85);
 
     autoTable(doc, {
       startY: 100,
-      head: [['N°', 'Fecha', 'Cuota Total', 'Interés', 'Amort.', 'Seguros', 'Saldo']],
+      head: [['N°', 'Vencimiento', 'Cuota', 'Interés', 'Capital', 'Seguros', 'Saldo']],
       body: simulationResult.cronograma.map((row: any) => [
-        row.numeroCuota,
-        new Date(row.fechaVencimiento).toLocaleDateString(),
-        row.cuotaTotal.toFixed(2),
-        row.interes.toFixed(2),
+        row.period,
+        new Date(row.paymentDate).toLocaleDateString(),
+        row.payment.toFixed(2),
+        row.interest.toFixed(2),
         row.amortizacion.toFixed(2),
         (row.seguros + row.gastos).toFixed(2),
-        row.saldoFinal.toFixed(2)
+        row.balance.toFixed(2)
       ]),
-      theme: 'striped',
+      theme: 'grid',
       headStyles: {
         fillColor: [31, 141, 233],
         halign: 'center',
@@ -186,10 +194,10 @@ export class ReportListComponent implements OnInit {
         5: { halign: 'right' },
         6: { halign: 'right' },
       },
-      styles: { fontSize: 9, cellPadding: 1.5 }
+      styles: { fontSize: 8, cellPadding: 2 }
     });
 
-    const nombreArchivo = `reporte_easyHouse-${client.documentNumber}.pdf`;
+    const nombreArchivo = `Reporte_${client.documentNumber}_${new Date().getTime()}.pdf`;
     doc.save(nombreArchivo);
   }
 }

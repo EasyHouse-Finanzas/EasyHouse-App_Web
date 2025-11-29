@@ -1,172 +1,205 @@
-<div class="space-y-8 animate-fade-in">
+<div class="min-h-screen bg-slate-50 font-sans p-4 md:p-8 animate-fade-in pb-12">
 
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
     <div>
-      <h2 class="text-2xl font-bold text-gray-800">Panel Principal</h2>
-      <p class="text-gray-500 mt-1">Resumen general de operaciones EasyHouse</p>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
+        Hola, <span class="text-[#1F8DE9]">{{ userName() }}</span>
+      </h1>
+      <p class="text-slate-500 mt-1.5 text-base">Aquí tienes el resumen de tu actividad financiera y comercial.</p>
     </div>
 
-    <div class="flex gap-3">
-      <a routerLink="/clients" class="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all font-medium shadow-sm text-sm flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="flex flex-wrap gap-3">
+      <a routerLink="/clients" class="group bg-white border border-slate-200 text-slate-600 px-5 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-sm flex items-center gap-2 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-slate-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
         </svg>
-        Nuevo Cliente
+        Registrar Cliente
       </a>
-      <a routerLink="/real-estate" class="px-4 py-2.5 bg-[#1F8DE9] text-white rounded-lg hover:bg-blue-600 transition-all font-medium shadow-md hover:shadow-lg text-sm flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+
+      <a routerLink="/simulator" class="bg-[#1F8DE9] hover:bg-[#166db5] text-white px-6 py-3 rounded-xl transition-all font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/30 transform hover:-translate-y-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
         </svg>
-        Nueva Vivienda
+        Nueva Simulación
       </a>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
     @for (card of summaryCards; track card.title) {
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between hover:shadow-md transition-shadow duration-300">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-lg hover:border-blue-100 transition-all duration-300 group cursor-default">
         <div>
-          <p class="text-sm font-medium text-gray-500 mb-1">{{ card.title }}</p>
-          <h3 class="text-2xl font-bold text-gray-800">{{ card.value }}</h3>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ card.title }}</p>
+          <h3 class="text-3xl font-extrabold text-slate-800 group-hover:text-[#1F8DE9] transition-colors">{{ card.value }}</h3>
         </div>
-        <div [class]="'p-3 rounded-lg ' + card.bg + ' ' + card.color">
+        <div [class]="'p-4 rounded-xl ' + card.bg + ' ' + card.color + ' group-hover:scale-110 transition-transform duration-300'">
           <ng-container [ngSwitch]="card.icon">
-            <svg *ngSwitchCase="'users'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-            <svg *ngSwitchCase="'calculator'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-            <svg *ngSwitchCase="'home'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            <svg *ngSwitchCase="'money'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg *ngSwitchCase="'users'" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            <svg *ngSwitchCase="'calculator'" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+            <svg *ngSwitchCase="'home'" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+            <svg *ngSwitchCase="'money'" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </ng-container>
         </div>
       </div>
     }
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
 
-    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-      <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-        <h3 class="font-bold text-gray-800">Últimas Simulaciones</h3>
-        <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded border">Filtrado por: Más recientes</span>
-      </div>
+    <div class="xl:col-span-2 flex flex-col gap-6">
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
-          <thead class="bg-gray-50 text-gray-500 font-medium border-b border-gray-100">
-          <tr>
-            <th class="px-6 py-3">Cliente</th>
-            <th class="px-6 py-3">Proyecto</th>
-            <th class="px-6 py-3">Fecha</th>
-            <th class="px-6 py-3 text-right">Monto Préstamo</th>
-            <th class="px-6 py-3 text-center">TCEA</th>
-          </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            @if (latestSimulations.length > 0) {
-              @for (sim of latestSimulations; track sim.id) {
-                <tr class="hover:bg-gray-50 transition-colors">
-                  <td class="px-6 py-4 font-medium text-gray-900">{{ sim.cliente }}</td>
-                  <td class="px-6 py-4 text-gray-600 truncate max-w-xs">{{ sim.proyecto }}</td>
-                  <td class="px-6 py-4 text-gray-400 text-xs">{{ sim.fecha }}</td>
-                  <td class="px-6 py-4 text-right font-mono text-gray-700 font-medium">
-                    S/ {{ sim.monto | number:'1.2-2' }}
-                  </td>
-                  <td class="px-6 py-4 text-center">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {{ sim.tcea }}%
-                    </span>
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg">Actividad Reciente</h3>
+            <p class="text-xs text-slate-500">Últimas 5 simulaciones generadas</p>
+          </div>
+          <button routerLink="/reports" class="text-sm text-[#1F8DE9] font-bold hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+            Ver Todo
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50/50 text-slate-500 font-bold border-b border-slate-100 text-xs uppercase tracking-wider">
+            <tr>
+              <th class="px-6 py-4">Cliente</th>
+              <th class="px-6 py-4">Proyecto / Inmueble</th>
+              <th class="px-6 py-4 text-right">Monto Crédito</th>
+              <th class="px-6 py-4 text-center">TCEA</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @if (latestSimulations.length > 0) {
+                @for (sim of latestSimulations; track sim.id) {
+                  <tr class="hover:bg-blue-50/30 transition-colors group">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div class="h-8 w-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs border border-slate-200 uppercase group-hover:bg-white group-hover:text-[#1F8DE9] group-hover:border-blue-200 transition-colors">
+                          {{ sim.cliente.slice(0,2) }}
+                        </div>
+                        <div>
+                          <p class="font-bold text-slate-800">{{ sim.cliente }}</p>
+                          <p class="text-xs text-slate-400">{{ sim.fecha }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-col">
+                        <span class="text-slate-700 font-medium truncate max-w-[150px]">{{ sim.proyecto }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <span class="font-mono text-slate-700 font-bold">
+                        S/ {{ sim.monto | number:'1.2-2' }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        {{ sim.tcea }}%
+                      </span>
+                    </td>
+                  </tr>
+                }
+              } @else {
+                <tr>
+                  <td colspan="4" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                      <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                      </div>
+                      <p class="text-slate-500 font-medium">Aún no hay actividad reciente.</p>
+                      <a routerLink="/simulator" class="text-[#1F8DE9] text-xs font-bold hover:underline mt-1 cursor-pointer">Crear primera simulación</a>
+                    </div>
                   </td>
                 </tr>
               }
-            } @else {
-              <tr>
-                <td colspan="5" class="px-6 py-8 text-center text-gray-400">
-                  No hay simulaciones recientes.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div class="p-4 border-t border-gray-100 bg-gray-50 text-center">
-        <a routerLink="/reports" class="text-sm text-[#1F8DE9] hover:text-blue-700 font-medium hover:underline cursor-pointer">
-          Ver historial completo &rarr;
-        </a>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <div class="space-y-6">
+    <div class="flex flex-col gap-6">
 
-      <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 text-white shadow-lg flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white opacity-5 rounded-full blur-xl"></div>
+      <div class="relative bg-[#0F172A] rounded-2xl p-6 text-white shadow-xl overflow-hidden group">
+        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-[#1F8DE9] opacity-20 rounded-full blur-2xl group-hover:opacity-30 transition-opacity duration-500"></div>
+        <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500 opacity-20 rounded-full blur-2xl"></div>
 
-        <div class="relative z-10 mb-4">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div class="bg-white/10 p-2 rounded-lg backdrop-blur-md border border-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg leading-none">MiVivienda</h4>
+                <span class="text-[10px] text-blue-200 uppercase tracking-wider font-bold">Información Oficial</span>
+              </div>
             </div>
-            <span class="bg-blue-500/20 text-blue-200 text-xs font-bold px-2 py-1 rounded">OFICIAL</span>
+            <span class="animate-pulse h-2 w-2 bg-green-400 rounded-full"></span>
           </div>
-          <h3 class="text-lg font-bold mb-1">Fondo Mivivienda</h3>
-          <p class="text-slate-400 text-xs mb-4">Tasas y subsidios actualizados.</p>
 
-          <div class="p-3 bg-white/5 rounded-lg border border-white/10 backdrop-blur-sm mb-4">
-            <p class="text-xs text-slate-400 mb-1 uppercase tracking-wide">Tasa Referencial</p>
+          <div class="bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm p-4 mb-4">
+            <p class="text-xs text-slate-400 mb-1 font-bold uppercase">Tasa de Interés Referencial</p>
             <div class="flex items-end justify-between">
-              <span class="text-2xl font-bold text-white">14.50%</span>
-              <span class="text-xs text-green-400 flex items-center bg-green-900/30 px-2 py-1 rounded">Estable</span>
+              <span class="text-3xl font-extrabold text-white tracking-tight">14.50%</span>
+              <div class="flex items-center text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                Estable
+              </div>
             </div>
           </div>
 
-          <a href="https://www.mivivienda.com.pe" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-2 rounded-lg text-center hover:bg-gray-50 transition-all text-sm">
-            Ir al sitio oficial
+          <a href="https://www.mivivienda.com.pe" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl text-center hover:bg-slate-100 transition-all text-sm shadow-lg">
+            Acceder al Portal Oficial
           </a>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-gray-800">Tipo de Cambio</h3>
-          <span class="text-xs font-mono bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100">
-            1 USD = {{ exchangeRate }} PEN
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center gap-2">
+            <div class="bg-indigo-50 p-2 rounded-lg text-indigo-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+            </div>
+            <h3 class="font-bold text-slate-800">Conversor</h3>
+          </div>
+          <span class="text-xs font-mono font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200">
+            TC: {{ exchangeRate }}
           </span>
         </div>
 
         <div class="space-y-4">
-          <div class="relative">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Soles (PEN)</label>
-            <div class="relative">
-              <span class="absolute left-3 top-2.5 text-gray-400 text-sm font-bold">S/</span>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Soles (PEN)</label>
+            <div class="relative group">
+              <span class="absolute left-3 top-2.5 text-slate-400 text-sm font-bold group-focus-within:text-[#1F8DE9]">S/</span>
               <input type="number" [(ngModel)]="amountPEN" (input)="convertPENtoUSD()"
-                     class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                     class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:ring-2 focus:ring-[#1F8DE9]/20 focus:border-[#1F8DE9] outline-none transition-all"
                      placeholder="0.00">
             </div>
           </div>
 
-          <div class="flex justify-center -my-2 relative z-10">
-            <div class="bg-gray-100 p-1.5 rounded-full border border-gray-200 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-              </svg>
+          <div class="relative flex justify-center py-1">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-slate-100"></div>
+            </div>
+            <div class="relative bg-white px-2">
+              <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
             </div>
           </div>
 
-          <div class="relative">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Dólares (USD)</label>
-            <div class="relative">
-              <span class="absolute left-3 top-2.5 text-gray-400 text-sm font-bold">$</span>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Dólares (USD)</label>
+            <div class="relative group">
+              <span class="absolute left-3 top-2.5 text-slate-400 text-sm font-bold group-focus-within:text-emerald-500">$</span>
               <input type="number" [(ngModel)]="amountUSD" (input)="convertUSDtoPEN()"
-                     class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                     class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                      placeholder="0.00">
             </div>
           </div>
         </div>
-
-        <p class="text-[10px] text-gray-400 mt-4 text-center">
-          * Tipo de cambio referencial para estimaciones.
-        </p>
       </div>
 
     </div>

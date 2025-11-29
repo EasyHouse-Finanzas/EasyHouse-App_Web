@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import {NgOptimizedImage} from '@angular/common';
+import { RouterOutlet, RouterLink } from '@angular/router'; // Importar RouterLink
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [RouterOutlet, NgOptimizedImage],
+  imports: [RouterOutlet, RouterLink, NgOptimizedImage],
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.css'
 })

@@ -15,6 +15,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -25,6 +26,10 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit() {
@@ -45,9 +50,9 @@ export class LoginComponent {
         console.error('Login error', err);
         this.isLoading = false;
         if (err.status === 401) {
-          this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
+          this.errorMessage = 'Credenciales incorrectas. Verifica tu correo o contraseña.';
         } else {
-          this.errorMessage = 'Error de conexión con el servidor.';
+          this.errorMessage = 'Credenciales incorrectas. Verifica tu correo o contraseña.';
         }
       }
     });
