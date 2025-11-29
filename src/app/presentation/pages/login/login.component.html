@@ -73,7 +73,21 @@
         • La contraseña es obligatoria.
       </div>
     </div>
+    <div class="flex justify-center my-4">
+      <re-captcha
+        [siteKey]="siteKey"
+        formControlName="recaptcha">
+      </re-captcha>
+    </div>
+    <div *ngIf="loginForm.get('recaptcha')?.invalid && loginForm.get('recaptcha')?.touched"
+         class="text-center text-xs text-red-400 font-medium mb-4">
+      • Por favor verifica que no eres un robot.
+    </div>
 
+    <div class="pt-4">
+      <button type="submit" ... >
+      </button>
+    </div>
     <div class="pt-4">
       <button type="submit"
               [disabled]="isLoading || loginForm.invalid"

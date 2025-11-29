@@ -3,11 +3,13 @@ import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, RecaptchaModule, RecaptchaFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -16,6 +18,7 @@ export class LoginComponent {
   isLoading = false;
   errorMessage: string | null = null;
   showPassword = false;
+  siteKey = environment.recaptcha.siteKey;
 
   constructor(
     private fb: FormBuilder,
@@ -24,7 +27,8 @@ export class LoginComponent {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required]],
+      recaptcha: ['', Validators.required]
     });
   }
 
@@ -41,6 +45,10 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = null;
 
+    const credentials = {
+      ...this.loginForm.value,
+      recaptchaToken: this.loginForm.get('recaptcha')?.value
+    };
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading = false;
@@ -54,6 +62,7 @@ export class LoginComponent {
         } else {
           this.errorMessage = 'Credenciales incorrectas. Verifica tu correo o contraseña.';
         }
+        this.loginForm.get('recaptcha')?.reset();
       }
     });
   }
