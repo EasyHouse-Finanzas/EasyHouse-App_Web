@@ -79,8 +79,9 @@ export class SimulatorFlowComponent implements OnInit {
       this.selectedHouse = this.houses.find(h => h.houseId === id);
 
       if (this.selectedHouse) {
+        const precio = this.selectedHouse.price !== undefined ? this.selectedHouse.price : (this.selectedHouse as any).precio;
         this.simulationForm.patchValue({
-          cuotaInicial: this.selectedHouse.price * 0.10
+          cuotaInicial: precio * 0.10
         });
       }
     });
@@ -116,7 +117,9 @@ export class SimulatorFlowComponent implements OnInit {
         ...this.simulationForm.value
       };
 
-      this.financialService.calculate(fullConfig, this.selectedHouse.price).subscribe({
+      const precio = this.selectedHouse.price !== undefined ? this.selectedHouse.price : (this.selectedHouse as any).precio;
+
+      this.financialService.calculate(fullConfig, precio).subscribe({
         next: (result) => {
           this.simulationResult = result;
           this.isLoadingSimulation = false;
@@ -158,10 +161,9 @@ export class SimulatorFlowComponent implements OnInit {
 
     this.configService.createConfig(configPayload).pipe(
       switchMap((responseConfig: any) => {
-        console.log('Respuesta Configuración:', responseConfig);
         const configId = responseConfig?.configId || responseConfig?.id || responseConfig;
 
-        if (!configId || typeof configId !== 'string') {
+        if (!configId) {
           throw new Error('No se pudo obtener el ID de la configuración creada');
         }
 
@@ -174,8 +176,6 @@ export class SimulatorFlowComponent implements OnInit {
           startDate: new Date(formSim.fechaInicio).toISOString()
         };
 
-        console.log('Enviando Simulación:', simulationPayload);
-
         return this.simulationService.createSimulation(simulationPayload);
       })
     ).subscribe({
@@ -184,50 +184,55 @@ export class SimulatorFlowComponent implements OnInit {
         this.isSaved = true;
       },
       error: (err) => {
-        console.error('Error completo:', err);
-        if (err.error && err.error.errors) {
-          console.table(err.error.errors);
-          alert('Error de validación: Revisa la consola para ver qué campo falla.');
-        } else {
-          alert('Ocurrió un error al guardar. Revisa la consola.');
-        }
+        console.error('Error al guardar:', err);
         this.isSaving = false;
+        alert('Ocurrió un error al guardar la simulación.');
       }
     });
   }
 
   downloadPDF() {
-    if (!this.simulationResult || !this.selectedHouse) return;
+    if (!this.simulationResult || !this.selectedHouse) {
+      alert('No hay datos de simulación o vivienda seleccionada.');
+      return;
+    }
 
+    const selectedClientId = this.configForm.get('clienteId')?.value;
+
+    const client = this.clients.find(c =>
+      (c.id && c.id === selectedClientId) ||
+      (c.clientId && c.clientId === selectedClientId)
+    );
+
+    if (!client) {
+      alert('Error: No se encontró la información del cliente seleccionado para generar el reporte.');
+      return;
+    }
+    this.generatePDF(this.simulationResult, client, this.selectedHouse);
+  }
+  private generatePDF(simulationResult: any, client: any, house: any) {
     const doc = new jsPDF();
     doc.setFillColor(31, 141, 233);
     doc.rect(0, 0, 210, 20, 'F');
     doc.setFontSize(16);
     doc.setTextColor(255, 255, 255);
     doc.text('EasyHouse - Reporte de Crédito', 105, 13, { align: 'center' });
-
-    const clienteId = this.configForm.get('clienteId')?.value;
-    const cliente = this.clients.find(c => c.id === clienteId);
-    let dniCliente = '00000000';
-
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Fecha de Generación: ${new Date().toLocaleDateString()}`, 14, 30);
-
-    if (cliente) {
-      dniCliente = cliente.documentNumber;
-      doc.setFont('helvetica', 'bold');
-      doc.text('CLIENTE:', 14, 40);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cliente.firstName} ${cliente.lastName}`, 14, 45);
-      doc.text(`DNI: ${cliente.documentNumber}`, 14, 50);
-    }
-
+    doc.text(`Fecha de Impresión: ${new Date().toLocaleDateString()}`, 14, 30);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CLIENTE:', 14, 40);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${client.firstName} ${client.lastName}`, 14, 45);
+    doc.text(`DNI: ${client.documentNumber}`, 14, 50);
     doc.setFont('helvetica', 'bold');
     doc.text('INMUEBLE:', 110, 40);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Proyecto: ${this.selectedHouse.project}`, 110, 45);
-    doc.text(`Valor: $ ${this.selectedHouse.price.toLocaleString('en-US', {minimumFractionDigits: 2})}`, 110, 50);
+    const projectName = house.project || house.proyecto || 'Sin Nombre';
+    doc.text(`Proyecto: ${projectName}`, 110, 45);
+
+    const precio = house.price !== undefined ? house.price : house.precio;
+    doc.text(`Valor: $ ${Number(precio).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 110, 50);
 
     doc.setDrawColor(200);
     doc.setFillColor(245, 247, 250);
@@ -240,25 +245,30 @@ export class SimulatorFlowComponent implements OnInit {
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
 
-    doc.text(`Monto Préstamo: S/ ${this.simulationResult.montoPrestamo.toFixed(2)}`, 20, 78);
-    doc.text(`VAN: ${this.simulationResult.van.toFixed(2)}`, 80, 78);
-    doc.text(`TIR: ${this.simulationResult.tir}%`, 140, 78);
+    // --- CORRECCIÓN AQUÍ: Usamos las propiedades en INGLÉS del nuevo modelo ---
+    doc.text(`Monto Préstamo: S/ ${simulationResult.loanAmount.toFixed(2)}`, 20, 78);
+    doc.text(`VAN: ${simulationResult.van.toFixed(2)}`, 80, 78);
+    // Nota: Si en tu modelo TS se llama 'tir', úsalo. Si es 'annualIRR', cámbialo aquí.
+    doc.text(`TIR: ${simulationResult.tir}%`, 140, 78);
 
-    doc.text(`TCEA: ${this.simulationResult.tcea}%`, 20, 85);
-    doc.text(`Cuota Ref: S/ ${this.simulationResult.cuotaFijaPromedio.toFixed(2)}`, 80, 85);
-    doc.text(`Costo Total: S/ ${this.simulationResult.costoTotalCredito.toFixed(2)}`, 140, 85);
+    doc.text(`TCEA: ${simulationResult.tcea}%`, 20, 85);
+    // fixedQuota en lugar de cuotaFijaPromedio
+    doc.text(`Cuota Ref: S/ ${simulationResult.fixedQuota.toFixed(2)}`, 80, 85);
+    // costoTotalCredito (si mantuviste el nombre en español en la interfaz TS, está bien, si no usa totalCreditCost)
+    doc.text(`Costo Total: S/ ${simulationResult.costoTotalCredito.toFixed(2)}`, 140, 85);
 
     autoTable(doc, {
       startY: 100,
       head: [['N°', 'Fecha', 'Cuota Total', 'Interés', 'Amort.', 'Seguros', 'Saldo']],
-      body: this.simulationResult.cronograma.map(row => [
-        row.numeroCuota,
-        new Date(row.fechaVencimiento).toLocaleDateString(),
-        row.cuotaTotal.toFixed(2),
-        row.interes.toFixed(2),
-        row.amortizacion.toFixed(2),
-        (row.seguros + row.gastos).toFixed(2),
-        row.saldoFinal.toFixed(2)
+      // --- CORRECCIÓN AQUÍ TAMBIÉN: Propiedades del array ---
+      body: simulationResult.cronograma.map((row: any) => [
+        row.period, // Antes: numeroCuota
+        new Date(row.paymentDate).toLocaleDateString(), // Antes: fechaVencimiento
+        row.payment.toFixed(2), // Antes: cuotaTotal
+        row.interest.toFixed(2), // Antes: interes
+        row.amortizacion.toFixed(2), // Este suele mantenerse o ser amortization
+        (row.seguros + row.gastos).toFixed(2), // Estos son los nuevos
+        row.balance.toFixed(2) // Antes: saldoFinal
       ]),
       theme: 'striped',
       headStyles: {
@@ -277,7 +287,7 @@ export class SimulatorFlowComponent implements OnInit {
       styles: { fontSize: 9, cellPadding: 1.5 }
     });
 
-    const nombreArchivo = `reporte_easyHouse-${dniCliente}.pdf`;
+    const nombreArchivo = `reporte_easyHouse-${client.documentNumber}.pdf`;
     doc.save(nombreArchivo);
   }
 

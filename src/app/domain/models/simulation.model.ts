@@ -1,9 +1,8 @@
-
 export interface SimulationConfig {
   moneda: string;
   tipoTasa: 'Efectiva' | 'Nominal';
   tasaValor: number;
-  capitalizacion?: string;
+  capitalizacion?: string; // IMPORTANTE: Agregado para soportar nominal
   periodoGracia: string;
   mesesGracia: number;
   bonoTechoPropio: number;
@@ -19,29 +18,29 @@ export interface SimulationConfig {
   annualDiscountRate?: number;
 }
 
-export interface AmortizationScheduleItem {
-  numeroCuota: number;
-  fechaVencimiento: string;
-  saldoInicial: number;
-  interes: number;
-  cuotaBase: number;
-  amortizacion: number;
-  seguros: number;
-  gastos: number;
-  cuotaTotal: number;
-  saldoFinal: number;
+// ESTA ES LA CLAVE: Debe coincidir con C# (camelCase)
+export interface AmortizationDetail {
+  period: number;           // Antes: numeroCuota
+  paymentDate: string;      // Antes: fechaVencimiento
+  payment: number;          // Antes: cuotaTotal
+  interest: number;         // Antes: interes
+  amortizacion: number;     // C#: Amortization -> JSON: amortization
+  balance: number;          // Antes: saldoFinal
+  seguros: number;          // NUEVO: Viene del Backend
+  gastos: number;           // NUEVO: Viene del Backend
 }
 
 export interface SimulationResult {
-  montoPrestamo: number;
-  cuotaFijaPromedio: number;
+  // Coincidencia con propiedades de clase Simulation (C#)
+  loanAmount: number;       // Antes: montoPrestamo
+  fixedQuota: number;       // Antes: cuotaFijaPromedio
   tcea: number;
   van: number;
-  tir: number;
-  totalIntereses: number;
-  costoTotalCredito: number;
-  gastosAdministrativos: number;
-  cronograma: AmortizationScheduleItem[];
+  tir: number;              // O annualIRR si usaste ese nombre en el DTO
+  totalIntereses: number;   // totalInterests
+  costoTotalCredito: number;// totalCreditCost
+  gastosAdministrativos: number; // insuranceMaintenanceFees
+  cronograma: AmortizationDetail[]; // El array con el nuevo tipo
 }
 
 export interface CreateConfigCommand {
