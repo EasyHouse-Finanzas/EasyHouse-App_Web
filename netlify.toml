@@ -1,6 +1,10 @@
 [build]
   command = "ng build"
   publish = "dist/EasyHouse/browser"
+
+[build.environment]
+NPM_FLAGS = "--legacy-peer-deps"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
