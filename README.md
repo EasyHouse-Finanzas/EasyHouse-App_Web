@@ -1,59 +1,68 @@
-# EasyHouse
+# EasyHouse – Web Application (Frontend)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.10.
+Aplicación web desarrollada en **Angular** para la simulación y visualización de créditos hipotecarios utilizando el *método francés*. Este sistema permite calcular cronogramas de pago, evaluar indicadores financieros y aplicar beneficios como el Bono Techo Propio, alineándose con los lineamientos de transparencia establecidos por la SBS.
 
-## Development server
+Este frontend está diseñado para ser utilizado por **empresas inmobiliarias**, facilitando la comparación de alternativas de financiamiento para sus clientes en casetas de ventas.
 
-To start a local development server, run:
+---
+
+## Introducción
+
+En el Perú, el acceso a la vivienda es un objetivo social clave, apoyado por programas como **MiVivienda** y el **Bono Techo Propio**, regulados por la **SBS**. La información financiera suele ser compleja y poco accesible para los usuarios, por lo que este sistema busca simplificar y transparentar los cálculos hipotecarios.
+
+El frontend ofrece una interfaz intuitiva que permite:
+
+- Simular créditos bajo el método francés.
+- Aplicar tasas nominales o efectivas.
+- Calcular créditos en soles o dólares.
+- Incluir periodos de gracia.
+- Aplicar el Bono Techo Propio.
+- Calcular VAN y TIR de forma clara.
+
+---
+
+## Objetivo del Proyecto
+
+Desarrollar una aplicación web interactiva que permita simular créditos hipotecarios de forma precisa, transparente y fácil de interpretar, apoyando la toma de decisiones de clientes inmobiliarios.
+
+---
+
+## Tecnologías Utilizadas
+
+- **Angular 16+**
+- **TypeScript**
+- **HTML5 / CSS3 / SCSS**
+- **Angular Material**
+- **RxJS**
+- **HttpClient (consumo de APIs)**
+- **Integración con .NET Backend**
+
+---
+
+## Características del Frontend
+
+###  Simulación de Créditos
+- Cuotas constantes (método francés)
+- Intereses, amortización y saldos por periodo
+- Créditos en moneda nacional o extranjera
+
+###  Tasas y Beneficios
+- Tasa nominal o efectiva
+- Aplicación del Bono Techo Propio
+- Períodos de gracia total o parcial
+
+###  Indicadores Financieros
+- **VAN** (Valor Actual Neto)
+- **TIR** (Tasa Interna de Retorno)
+
+###  Interfaz optimizada
+Pensada para casetas de ventas y demostraciones rápidas.
+
+---
+
+## Instalación y Ejecución
 
 ```bash
-ng serve
-```
+npm install
+ng serve -o
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
